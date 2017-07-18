@@ -23,7 +23,5 @@ public class Main
         }
     }
 
-    public static void main(String[] args) {
-        byte[] data = readBinaryFile("texture.png");
-    }
+    public static void main(String[] args) {}
 }
