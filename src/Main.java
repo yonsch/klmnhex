@@ -66,10 +66,8 @@ public class Main
             chooser.setDialogType(JFileChooser.SAVE_DIALOG);
             chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
             int result = chooser.showOpenDialog(frame);
-            if (result == JFileChooser.APPROVE_OPTION) {
+            if (result == JFileChooser.APPROVE_OPTION)
                 f.saveAs(chooser.getSelectedFile().getAbsolutePath());
-                table.setData(f.getData());
-            }
         });
         exit.addActionListener(e -> frame.dispose());
 

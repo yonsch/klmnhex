@@ -31,7 +31,6 @@ public class HexTable extends JScrollPane
         table.getTableHeader().setResizingAllowed(false);
         table.getTableHeader().setReorderingAllowed(false);
         table.setDefaultRenderer(Object.class, new HexCellRenderer());
-        table.setAutoCreateColumnsFromModel(true);
         JTable rowTable = new RowNumberTable(table);
         setRowHeaderView(rowTable);
         setCorner(JScrollPane.UPPER_LEFT_CORNER, rowTable.getTableHeader());
@@ -99,10 +98,34 @@ public class HexTable extends JScrollPane
         public int getColumnCount() { return data[0].length; }
 
         @Override
-        public boolean isCellEditable(int row, int col) { return false; }
+        public boolean isCellEditable(int row, int col) { return true; }
 
         @Override
         public Object getValueAt(int row, int col) { return data[row][col]; }
+
+        @Override
+        public void setValueAt(Object value, int row, int col) {
+            Byte res = null;
+            String s = (String) value;
+
+            switch (displayMode) {
+                case HEX:
+                    try { res = Byte.parseByte(s, 16); }
+                    catch (Exception e) { return; }
+                    break;
+                case DECIMAL:
+                case UDECIMAL:
+                    try { res = Byte.parseByte(s); }
+                    catch (Exception e) { return; }
+                    break;
+                case CHAR:
+                    if (s.length() > 1) return;
+                    res = (byte) s.charAt(0);
+            }
+
+            data[row][col] = res;
+            fireTableCellUpdated(row, col);
+        }
 
         @Override
         public String getColumnName(int column) { return headers[column]; }
