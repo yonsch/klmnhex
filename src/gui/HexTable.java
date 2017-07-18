@@ -17,8 +17,8 @@ public class HexTable extends JScrollPane
     private JTable table;
 
     public HexTable(Object[][] data, String[] headers) {
-        this(new JTable(data, headers));
-        table.setModel(new HexTableModel(data));
+        this(new JTable());
+        table.setModel(new HexTableModel(data, headers));
     }
 
     private HexTable(JTable table) {
@@ -27,6 +27,7 @@ public class HexTable extends JScrollPane
         this.table = table;
         table.setShowVerticalLines(false);
         table.getTableHeader().setResizingAllowed(false);
+        table.getTableHeader().setReorderingAllowed(false);
         table.setDefaultRenderer(Object.class, new HexCellRenderer());
         JTable rowTable = new RowNumberTable(table);
         setRowHeaderView(rowTable);
@@ -63,7 +64,7 @@ public class HexTable extends JScrollPane
                     case CHAR:
                         setText(String.format("%c", v));
                 }
-            } else setText("oops");
+            } else setText("- -");
 
             setFont(getFont().deriveFont(Font.PLAIN));
             if (isSelected) setBackground(table.getSelectionBackground());
@@ -74,10 +75,15 @@ public class HexTable extends JScrollPane
     }
 
     /* a table model that supports changing table data */
-    private class HexTableModel extends AbstractTableModel {
+    private class HexTableModel extends AbstractTableModel
+    {
         private Object[][] data;
+        private String[] headers;
 
-        public HexTableModel(Object[][] data) { this.data = data; }
+        public HexTableModel(Object[][] data, String[] headers) {
+            this.data = data;
+            this.headers = headers;
+        }
 
         @Override
         public int getRowCount() { return data.length; }
@@ -89,6 +95,9 @@ public class HexTable extends JScrollPane
 
         @Override
         public Object getValueAt(int row, int col) { return data[row][col]; }
+
+        @Override
+        public String getColumnName(int column) { return headers[column]; }
 
         public void setData(Object[][] data) {
             this.data = data;
