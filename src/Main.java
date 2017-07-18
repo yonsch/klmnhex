@@ -12,7 +12,7 @@ public class Main
         f.open("readme.md");
 
         JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.setSize(700, 500);
         frame.setTitle("KLMN Hex Editor");
         frame.setLocationRelativeTo(null);
@@ -33,7 +33,7 @@ public class Main
             table.setData(f.getData());
         });
         save.addActionListener(e -> f.saveAs("test"));
-        exit.addActionListener(e -> frame.setVisible(false));
+        exit.addActionListener(e -> frame.dispose());
 
         fileMenu.add(open);
         fileMenu.add(save);
