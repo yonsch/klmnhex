@@ -8,9 +8,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
-/**
- * Created by Michael on 7/18/2017.
- */
+
 public class Table extends JScrollPane
 {
     public Table(Object[][] data, String[] headers) { this(new JTable(data, headers)); }
