@@ -1,32 +1,27 @@
 package gui;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.beans.*;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
 /**
  * Created by Michael on 7/18/2017.
  */
-public class Table extends JScrollPane
+public class HexTable extends JScrollPane
 {
     public enum DisplayMode { DECIMAL, HEX, CHAR }
 
     private DisplayMode displayMode = DisplayMode.DECIMAL;
     private JTable table;
 
-    public Table(Object[][] data, String[] headers) {
+    public HexTable(Object[][] data, String[] headers) {
         this(new JTable(data, headers));
-        table.setModel(new DefaultTableModel(data, headers) {
-            @Override
-            public boolean isCellEditable(int row, int col) { return false; }
-        });
+        table.setModel(new HexTableModel(data));
     }
 
-    private Table(JTable table) {
+    private HexTable(JTable table) {
         super(table);
 
         this.table = table;
@@ -40,6 +35,8 @@ public class Table extends JScrollPane
 
     public void setDisplayMode(DisplayMode displayMode) { this.displayMode = displayMode; }
 
+    public void setData(Object[][] data) { ((HexTableModel) table.getModel()).setData(data); }
+
     /* a cell editor that supports different display modes */
     private class HexCellRenderer extends DefaultTableCellRenderer
     {
@@ -51,23 +48,48 @@ public class Table extends JScrollPane
 
             setHorizontalAlignment(SwingConstants.CENTER);
 
-            byte v = (byte) value;
-            switch (displayMode) {
-                case DECIMAL:
-                    setText(String.format("%d", v));
-                    break;
-                case HEX:
-                    setText(String.format("%02X", v));
-                    break;
-                case CHAR:
-                    setText(String.format("%c", v));
-            }
+            if (value != null) {
+                byte v = (byte) value;
+                switch (displayMode) {
+                    case DECIMAL:
+                        setText(String.format("%d", v));
+                        break;
+                    case HEX:
+                        setText(String.format("%02X", v));
+                        break;
+                    case CHAR:
+                        setText(String.format("%c", v));
+                }
+            } else setText("oops");
 
             setFont(getFont().deriveFont(Font.PLAIN));
             if (isSelected) setBackground(table.getSelectionBackground());
             else setBackground(table.getBackground());
 
             return this;
+        }
+    }
+
+    /* a table model that supports changing table data */
+    private class HexTableModel extends AbstractTableModel {
+        private Object[][] data;
+
+        public HexTableModel(Object[][] data) { this.data = data; }
+
+        @Override
+        public int getRowCount() { return data.length; }
+        @Override
+        public int getColumnCount() { return data[0].length;}
+
+        @Override
+        public boolean isCellEditable(int row, int col) { return false; }
+
+        @Override
+        public Object getValueAt(int row, int col) { return data[row][col]; }
+
+        public void setData(Object[][] data) {
+            this.data = data;
+            fireTableDataChanged();
         }
     }
 
