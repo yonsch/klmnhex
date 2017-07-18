@@ -1,6 +1,7 @@
 import gui.HexTable;
 
 import javax.swing.*;
+import java.io.File;
 
 /**
  * Created by Michael on 7/18/2017.
@@ -19,7 +20,7 @@ public class Main
 
         String[] columns = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"};
         HexTable table = new HexTable(f.getData(), columns);
-        table.setDisplayMode(HexTable.DisplayMode.CHAR);
+        table.setDisplayMode(HexTable.DisplayMode.DECIMAL);
         table.setBorder(null);
 
         final JMenuBar menuBar = new JMenuBar();
@@ -29,10 +30,27 @@ public class Main
         JMenuItem exit = new JMenuItem("Exit");
 
         open.addActionListener(e -> {
-            f.open("otherFile");
-            table.setData(f.getData());
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Choose a File To Open");
+            chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+            chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+            int result = chooser.showOpenDialog(frame);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                f.open(chooser.getSelectedFile().getAbsolutePath());
+                table.setData(f.getData());
+            }
         });
-        save.addActionListener(e -> f.saveAs("test"));
+        save.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Choose a File To Save Your Data To");
+            chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+            chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+            int result = chooser.showOpenDialog(frame);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                f.saveAs(chooser.getSelectedFile().getAbsolutePath());
+                table.setData(f.getData());
+            }
+        });
         exit.addActionListener(e -> frame.dispose());
 
         fileMenu.add(open);

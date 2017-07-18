@@ -11,7 +11,7 @@ import javax.swing.table.*;
  */
 public class HexTable extends JScrollPane
 {
-    public enum DisplayMode { DECIMAL, HEX, CHAR }
+    public enum DisplayMode { DECIMAL, UDECIMAL, HEX, CHAR }
 
     private DisplayMode displayMode = DisplayMode.DECIMAL;
     private JTable table;
@@ -53,6 +53,9 @@ public class HexTable extends JScrollPane
                 switch (displayMode) {
                     case DECIMAL:
                         setText(String.format("%d", v));
+                        break;
+                    case UDECIMAL:
+                        setText(String.format("%d", v & 0xFF));
                         break;
                     case HEX:
                         setText(String.format("%02X", v));

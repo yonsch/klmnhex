@@ -33,7 +33,6 @@ public class HexFile {
             }
             result += bytes.get(i).toString();
             result += " ";
-
         }
         return result;
     }
