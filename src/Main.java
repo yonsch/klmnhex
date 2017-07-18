@@ -9,8 +9,8 @@ import java.io.File;
 public class Main
 {
     public static void main(String[] args) throws Exception {
-        HexFile f = new HexFile();
-        f.open("readme.md");
+        HexFile f = new HexFile("readme.md");
+
 
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -56,8 +56,8 @@ public class Main
             chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
             int result = chooser.showOpenDialog(frame);
             if (result == JFileChooser.APPROVE_OPTION) {
-                f.open(chooser.getSelectedFile().getAbsolutePath());
-                table.setData(f.getData());
+                HexFile file = new HexFile(chooser.getSelectedFile().getAbsolutePath());
+                table.setData(file.getData());
             }
         });
         save.addActionListener(e -> {
