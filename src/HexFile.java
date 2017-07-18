@@ -7,17 +7,23 @@ import java.nio.file.Path;
 
 
 public class HexFile {
-    private ArrayList<Byte> bytes = new ArrayList<>();
+
     private String path;
     private String fileName;
-    private Byte[][] byteArray;
+    private Byte[][] dataArray;
 
 
     HexFile(){}
     HexFile(String path){
+
         byte[] byteArray = readBinaryFile(path);
-        for (int i = 0; i < byteArray.length; i++)
-            bytes.add(byteArray[i]);
+        dataArray = new Byte[(int)Math.ceil(byteArray.length/16.0)][16];
+
+
+        for (int i = 0; i < byteArray.length; i++) {
+            System.out.println(i);
+            dataArray[i / 16][i % 16] = byteArray[i];
+        }
         Path p = Paths.get(path);
         this.fileName = p.getFileName().toString();
         this.path = path;
@@ -37,53 +43,17 @@ public class HexFile {
             throw new RuntimeException("Error: Could Not Write to " + filename);
         }
     }
-    public String toString() {
-        //very slow, use only for debugging
-        String result = "a hex file at: " + path;
-        for (int i = 0; i < bytes.size(); i++) {
-            if(i%16==0){
-                result += "\n";
-            }
-            result += bytes.get(i).toString();
-            result += " ";
-        }
-        return result;
-    }
 
-//    public void open(String path){
-//        if(!bytes.isEmpty()){
-//            bytes.clear();
-//        }
-//        byte[] byteArray = readBinaryFile(path);
-//        for (int i = 0; i < byteArray.length; i++)
-//            bytes.add(byteArray[i]);
-//        Path p = Paths.get(path);
-//        this.fileName = p.getFileName().toString();
-//        this.path = path;
-//    }
-    public Byte[][] getData(){
-        Byte[][] data = new Byte[(int)Math.ceil(bytes.size()/16.0)][16];
-        for (int i = 0; i < bytes.size(); i++)
-            data[i/16][i%16] = bytes.get(i);
-        return data;
-    }
     public void saveAs(String p){
-        byte[] b = new byte[bytes.size()];
-        for (int i = 0; i < bytes.size(); i++)
-            b[i] = bytes.get(i);
+        byte[] b = new byte[dataArray.length];
+        for (int i = 0; i < dataArray.length; i++)
+            b[i] = dataArray[i/16][i%16];
         writeBinaryFile(b, p);
     }
     public void save(){
         saveAs(path);
     }
 
-    public ArrayList<Byte> getBytes() {
-        return bytes;
-    }
-
-    public void setBytes(ArrayList<Byte> bytes) {
-        this.bytes = bytes;
-    }
 
     public String getPath() {
         return path;
@@ -101,11 +71,11 @@ public class HexFile {
         this.fileName = fileName;
     }
 
-    public Byte[][] getByteArray() {
-        return byteArray;
+    public Byte[][] getDataArray() {
+        return dataArray;
     }
 
-    public void setByteArray(Byte[][] byteArray) {
-        this.byteArray = byteArray;
+    public void setDataArray(Byte[][] byteArray) {
+        this.dataArray = byteArray;
     }
 }

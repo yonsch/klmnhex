@@ -9,6 +9,9 @@ import java.io.File;
 public class Main
 {
     public static void main(String[] args) throws Exception {
+
+
+
         HexFile f = new HexFile("readme.md");
 
 
@@ -18,7 +21,7 @@ public class Main
         frame.setTitle("KLMN Hex Editor");
         frame.setLocationRelativeTo(null);
 
-        HexTable table = new HexTable(f.getData());
+        HexTable table = new HexTable(f.getDataArray());
         table.setDisplayMode(HexTable.DisplayMode.HEX);
         table.setBorder(null);
 
@@ -57,7 +60,7 @@ public class Main
             int result = chooser.showOpenDialog(frame);
             if (result == JFileChooser.APPROVE_OPTION) {
                 HexFile file = new HexFile(chooser.getSelectedFile().getAbsolutePath());
-                table.setData(file.getData());
+                table.setData(file.getDataArray());
             }
         });
         save.addActionListener(e -> {
