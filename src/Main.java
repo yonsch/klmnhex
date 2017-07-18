@@ -1,6 +1,8 @@
 import gui.HexTable;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 
 /**
@@ -18,13 +20,33 @@ public class Main
         frame.setTitle("KLMN Hex Editor");
         frame.setLocationRelativeTo(null);
 
-        String[] columns = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"};
-        HexTable table = new HexTable(f.getData(), columns);
-        table.setDisplayMode(HexTable.DisplayMode.DECIMAL);
+        HexTable table = new HexTable(f.getData());
+        table.setDisplayMode(HexTable.DisplayMode.HEX);
         table.setBorder(null);
 
         final JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
+        JMenu viewMenu = new JMenu("View");
+
+        JMenuItem selectViewMode = new JMenu("Select View Mode");
+        JMenuItem[] modes = {
+                new JCheckBoxMenuItem("Hex Mode", true),
+                new JCheckBoxMenuItem("Signed Decimal Mode"),
+                new JCheckBoxMenuItem("Unsigned Decimal Mode"),
+                new JCheckBoxMenuItem("Character Mode")
+        };
+
+        for (int i = 0; i < modes.length; i++) {
+            final int n = i;
+            modes[n].addActionListener(e -> {
+                for (int j = 0; j < modes.length; j++)
+                    modes[j].setSelected(j == n);
+                for (HexTable.DisplayMode j : HexTable.DisplayMode.values())
+                    if (j.ordinal() == n) table.setDisplayMode(j);
+            });
+            selectViewMode.add(modes[n]);
+        } viewMenu.add(selectViewMode);
+
         JMenuItem open = new JMenuItem("Open");
         JMenuItem save = new JMenuItem("Save");
         JMenuItem exit = new JMenuItem("Exit");
@@ -57,7 +79,9 @@ public class Main
         fileMenu.add(save);
         fileMenu.addSeparator();
         fileMenu.add(exit);
+
         menuBar.add(fileMenu);
+        menuBar.add(viewMenu);
 
         frame.setJMenuBar(menuBar);
         frame.getContentPane().add(table);

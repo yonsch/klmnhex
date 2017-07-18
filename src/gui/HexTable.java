@@ -11,14 +11,16 @@ import javax.swing.table.*;
  */
 public class HexTable extends JScrollPane
 {
-    public enum DisplayMode { DECIMAL, UDECIMAL, HEX, CHAR }
+    public enum DisplayMode { HEX, DECIMAL, UDECIMAL, CHAR }
 
     private DisplayMode displayMode = DisplayMode.DECIMAL;
     private JTable table;
+    private HexTableModel model;
 
-    public HexTable(Object[][] data, String[] headers) {
+    public HexTable(Object[][] data) {
         this(new JTable());
-        table.setModel(new HexTableModel(data, headers));
+        model = new HexTableModel(data);
+        table.setModel(model);
     }
 
     private HexTable(JTable table) {
@@ -29,14 +31,18 @@ public class HexTable extends JScrollPane
         table.getTableHeader().setResizingAllowed(false);
         table.getTableHeader().setReorderingAllowed(false);
         table.setDefaultRenderer(Object.class, new HexCellRenderer());
+        table.setAutoCreateColumnsFromModel(true);
         JTable rowTable = new RowNumberTable(table);
         setRowHeaderView(rowTable);
         setCorner(JScrollPane.UPPER_LEFT_CORNER, rowTable.getTableHeader());
     }
 
-    public void setDisplayMode(DisplayMode displayMode) { this.displayMode = displayMode; }
+    public void setDisplayMode(DisplayMode displayMode) {
+        this.displayMode = displayMode;
+        model.fireTableDataChanged();
+    }
 
-    public void setData(Object[][] data) { ((HexTableModel) table.getModel()).setData(data); }
+    public void setData(Object[][] data) { model.setData(data); }
 
     /* a cell editor that supports different display modes */
     private class HexCellRenderer extends DefaultTableCellRenderer
@@ -80,15 +86,16 @@ public class HexTable extends JScrollPane
         private Object[][] data;
         private String[] headers;
 
-        public HexTableModel(Object[][] data, String[] headers) {
+        public HexTableModel(Object[][] data) {
             this.data = data;
-            this.headers = headers;
+            generateHeaders(getColumnCount());
         }
 
         @Override
         public int getRowCount() { return data.length; }
+
         @Override
-        public int getColumnCount() { return data[0].length;}
+        public int getColumnCount() { return data[0].length; }
 
         @Override
         public boolean isCellEditable(int row, int col) { return false; }
@@ -101,7 +108,15 @@ public class HexTable extends JScrollPane
 
         public void setData(Object[][] data) {
             this.data = data;
+            generateHeaders(getColumnCount());
+            table.createDefaultColumnsFromModel();
             fireTableDataChanged();
+        }
+
+        private void generateHeaders(int n) {
+            headers = new String[n];
+            for (int i = 0; i < n; i++)
+                headers[i] = String.format("%01X", i);
         }
     }
 
