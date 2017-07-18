@@ -68,7 +68,8 @@ public class HexTable extends JScrollPane
                         setText(String.format("%02X", v));
                         break;
                     case CHAR:
-                        setText(String.format("%c", v));
+                        if (Character.isDefined(v)) setText(String.format("%c", v));
+                        else setText(".");
                 }
             } else setText("- -");
 
