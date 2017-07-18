@@ -1,8 +1,6 @@
 import gui.Table;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
-import java.awt.*;
 
 /**
  * Created by Michael on 7/18/2017.
@@ -10,6 +8,9 @@ import java.awt.*;
 public class Main
 {
     public static void main(String[] args) {
+        HexFile f = new HexFile();
+        f.open("readme.md");
+
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setSize(700, 500);
@@ -17,14 +18,9 @@ public class Main
         frame.setLocationRelativeTo(null);
 
         String[] columns = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"};
-        Object[][] data = {
-                {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16},
-                {17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32}
-        };
-        Table table = new Table(data, columns);
+        Table table = new Table(f.getData(), columns);
+        table.setDisplayMode(Table.DisplayMode.HEX);
         table.setBorder(null);
-
-        data[0][0] = 5;
 
         frame.getContentPane().add(table);
         frame.setVisible(true);

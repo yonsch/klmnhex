@@ -8,21 +8,67 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
-
+/**
+ * Created by Michael on 7/18/2017.
+ */
 public class Table extends JScrollPane
 {
-    public Table(Object[][] data, String[] headers) { this(new JTable(data, headers)); }
+    public enum DisplayMode { DECIMAL, HEX, CHAR }
+
+    private DisplayMode displayMode = DisplayMode.DECIMAL;
+    private JTable table;
+
+    public Table(Object[][] data, String[] headers) {
+        this(new JTable(data, headers));
+        table.setModel(new DefaultTableModel(data, headers) {
+            @Override
+            public boolean isCellEditable(int row, int col) { return false; }
+        });
+    }
 
     private Table(JTable table) {
         super(table);
+
+        this.table = table;
         table.setShowVerticalLines(false);
         table.getTableHeader().setResizingAllowed(false);
-        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
-        renderer.setHorizontalAlignment(SwingConstants.CENTER);
-        table.setDefaultRenderer(Object.class, renderer);
+        table.setDefaultRenderer(Object.class, new HexCellRenderer());
         JTable rowTable = new RowNumberTable(table);
         setRowHeaderView(rowTable);
         setCorner(JScrollPane.UPPER_LEFT_CORNER, rowTable.getTableHeader());
+    }
+
+    public void setDisplayMode(DisplayMode displayMode) { this.displayMode = displayMode; }
+
+    /* a cell editor that supports different display modes */
+    private class HexCellRenderer extends DefaultTableCellRenderer
+    {
+        public HexCellRenderer() { super(); }
+
+        @Override
+        public Component getTableCellRendererComponent(
+                JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+
+            setHorizontalAlignment(SwingConstants.CENTER);
+
+            byte v = (byte) value;
+            switch (displayMode) {
+                case DECIMAL:
+                    setText(String.format("%d", v));
+                    break;
+                case HEX:
+                    setText(String.format("%02X", v));
+                    break;
+                case CHAR:
+                    setText(String.format("%c", v));
+            }
+
+            setFont(getFont().deriveFont(Font.PLAIN));
+            if (isSelected) setBackground(table.getSelectionBackground());
+            else setBackground(table.getBackground());
+
+            return this;
+        }
     }
 
     /*
