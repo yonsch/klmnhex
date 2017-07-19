@@ -7,8 +7,8 @@ import java.util.ArrayList;
 public class Main
 {
     public static void main(String[] args) throws Exception {
-        Byte[] b = {1,2,3};
-        Parser.parse("header:ascii(80),tricount:int(4),triangles:ascii(50)",b);
+        Byte[] b = {60,60,60,61,62,0,0,4,5};
+        Parser.parse("header:ascii(5),tricount:int(4)",b);
         ArrayList<HexFile> files = new ArrayList<>();
         HexFile ff = new HexFile("readme.md");
         files.add(ff);
