@@ -6,9 +6,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
-/**
- * Created by Michael on 7/18/2017.
- */
+
 public class HexTable extends JScrollPane
 {
     public enum DisplayMode { HEX, DECIMAL, UDECIMAL, CHAR }

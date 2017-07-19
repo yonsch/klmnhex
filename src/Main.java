@@ -4,9 +4,6 @@ import javax.swing.*;
 import java.io.File;
 import java.util.ArrayList;
 
-/**
- * Created by Michael on 7/18/2017.
- */
 public class Main
 {
     public static void main(String[] args) throws Exception {
@@ -89,3 +86,4 @@ public class Main
         frame.setVisible(true);
     }
 }
+
