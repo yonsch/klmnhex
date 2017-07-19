@@ -21,7 +21,6 @@ public class HexFile {
 
 
         for (int i = 0; i < byteArray.length; i++) {
-            System.out.println(i);
             dataArray[i / 16][i % 16] = byteArray[i];
         }
         Path p = Paths.get(path);
