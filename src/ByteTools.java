@@ -1,9 +1,6 @@
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-/**
- * Created by Yonch on 19/07/2017.
- */
 public class ByteTools {
     public static float bytesToFloat(byte[] bytes, boolean big){
         if (big) return ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN).getFloat();
