@@ -1,3 +1,5 @@
+import Interpreter.Lexer;
+import Interpreter.Parser;
 import gui.HexTable;
 
 import javax.swing.*;
@@ -7,8 +9,10 @@ import java.util.ArrayList;
 public class Main
 {
     public static void main(String[] args) throws Exception {
-        Byte[] b = {60,60,60,61,62,0,0,4,5};
-        Parser.parse("header:ascii(5),tricount:int(4)",b);
+        String exp = "\"hello\":=;$hello$[4566783]";
+        System.out.println(Lexer.lex(exp));
+
+
         ArrayList<HexFile> files = new ArrayList<>();
         HexFile ff = new HexFile("readme.md");
         files.add(ff);
