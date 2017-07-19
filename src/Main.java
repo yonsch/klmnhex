@@ -2,6 +2,7 @@ import gui.HexTable;
 
 import javax.swing.*;
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Created by Michael on 7/18/2017.
@@ -10,10 +11,9 @@ public class Main
 {
     public static void main(String[] args) throws Exception {
 
-
-
-        HexFile f = new HexFile("readme.md");
-
+        ArrayList<HexFile> files = new ArrayList<>();
+        HexFile ff = new HexFile("readme.md");
+        files.add(ff);
 
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -21,7 +21,7 @@ public class Main
         frame.setTitle("KLMN Hex Editor");
         frame.setLocationRelativeTo(null);
 
-        HexTable table = new HexTable(f.getDataArray());
+        HexTable table = new HexTable(files.get(0).getDataArray());
         table.setDisplayMode(HexTable.DisplayMode.HEX);
         table.setBorder(null);
 
@@ -60,6 +60,8 @@ public class Main
             int result = chooser.showOpenDialog(frame);
             if (result == JFileChooser.APPROVE_OPTION) {
                 HexFile file = new HexFile(chooser.getSelectedFile().getAbsolutePath());
+                files.clear();
+                files.add(file);
                 table.setData(file.getDataArray());
             }
         });
@@ -70,7 +72,7 @@ public class Main
             chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
             int result = chooser.showOpenDialog(frame);
             if (result == JFileChooser.APPROVE_OPTION)
-                f.saveAs(chooser.getSelectedFile().getAbsolutePath());
+                files.get(0).saveAs(chooser.getSelectedFile().getAbsolutePath());
         });
         exit.addActionListener(e -> frame.dispose());
 

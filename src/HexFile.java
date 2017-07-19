@@ -11,17 +11,18 @@ public class HexFile {
     private String path;
     private String fileName;
     private Byte[][] dataArray;
+    private int size;
 
 
     HexFile(){}
     HexFile(String path){
 
         byte[] byteArray = readBinaryFile(path);
+        size = byteArray.length;
         dataArray = new Byte[(int)Math.ceil(byteArray.length/16.0)][16];
 
 
         for (int i = 0; i < byteArray.length; i++) {
-            System.out.println(i);
             dataArray[i / 16][i % 16] = byteArray[i];
         }
         Path p = Paths.get(path);
@@ -45,9 +46,11 @@ public class HexFile {
     }
 
     public void saveAs(String p){
-        byte[] b = new byte[dataArray.length];
-        for (int i = 0; i < dataArray.length; i++)
-            b[i] = dataArray[i/16][i%16];
+        byte[] b = new byte[size];
+
+        for (int i = 0; i < size; i++) {
+            b[i] = dataArray[i / 16][i % 16];
+        }
         writeBinaryFile(b, p);
     }
     public void save(){
