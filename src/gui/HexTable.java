@@ -31,6 +31,7 @@ public class HexTable extends JScrollPane
         table.getTableHeader().setResizingAllowed(false);
         table.getTableHeader().setReorderingAllowed(false);
         table.setDefaultRenderer(Object.class, new HexCellRenderer());
+        table.setDefaultEditor(Object.class, new PrintCellEditor(new JTextField()));
         JTable rowTable = new RowNumberTable(table);
         setRowHeaderView(rowTable);
         setCorner(JScrollPane.UPPER_LEFT_CORNER, rowTable.getTableHeader());
@@ -42,6 +43,31 @@ public class HexTable extends JScrollPane
     }
 
     public void setData(Object[][] data) { model.setData(data); }
+
+    private class PrintCellEditor extends DefaultCellEditor
+    {
+        public PrintCellEditor(JTextField textField) { super(textField);}
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                                                     boolean isSelected,
+                                                     int row, int column) {
+            Component c =  super.getTableCellEditorComponent(table, value, isSelected, row, column);
+            String s = (String) delegate.getCellEditorValue();
+            switch (displayMode) {
+                case DECIMAL:
+                case UDECIMAL:
+                    break;
+                case HEX:
+                    delegate.setValue(String.format("%02X", Byte.parseByte(s)));
+                    break;
+                case CHAR:
+                    delegate.setValue((char) Byte.parseByte(s));
+            }
+
+            return c;
+        }
+    }
 
     /* a cell editor that supports different display modes */
     private class HexCellRenderer extends DefaultTableCellRenderer
