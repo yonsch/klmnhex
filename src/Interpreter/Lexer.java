@@ -10,12 +10,14 @@ public class Lexer {
         int i = 0;
         while (i < expression.length()) {
             char c = expression.charAt(i);
-            //System.out.println(i);
-            //System.out.println(c);
             if (c=='"'){
-
                 int endLabel = getLabelEnd(expression, i + 1);
                 tokens.add(new Token("LABEL",expression.substring(i,endLabel+1)));
+                i=endLabel+1;
+            }
+            else if (c=='\''){
+                int endLabel = getSubLabelEnd(expression, i + 1);
+                tokens.add(new Token("SUBLABEL",expression.substring(i,endLabel+1)));
                 i=endLabel+1;
             }
             else if (c=='='){
@@ -43,8 +45,9 @@ public class Lexer {
                 i++;
             }
             else if (c=='@'){
-                tokens.add(new Token("LOOP","@"));
-                i++;
+                int endLabel = getLoopEnd(expression, i + 1);
+                tokens.add(new Token("LOOP",expression.substring(i,endLabel+1)));
+                i=endLabel+1;
             }
             else if (c==';'){
                 tokens.add(new Token("SEMICOLON",";"));
@@ -56,13 +59,24 @@ public class Lexer {
             }
             else if (Character.isDigit(c)){
                 int endNumber = getNumberEnd(expression,i+1);
-                tokens.add(new Token("NUMBER",expression.substring(i,endNumber+1)));
+                String s = expression.substring(i, endNumber);
+                if (s.indexOf('.')>=0) tokens.add(new Token("FLOAT",s));
+                else tokens.add(new Token("INT",s));
                 i=endNumber;
             }
             else if (c=='$'){
                 int endLabel = getVariableEnd(expression, i + 1);
                 tokens.add(new Token("VARIABLE",expression.substring(i,endLabel+1)));
                 i=endLabel+1;
+            }
+            else if ("+-*/%".indexOf(c)>=0){
+                tokens.add(new Token("OPERATION",Character.toString(c)));
+                i++;
+            }
+            else if (Character.isLetter(c)){
+                int endLabel = getFuncEnd(expression, i + 1);
+                tokens.add(new Token("FUNCTION",expression.substring(i, endLabel)));
+                i=endLabel;
             }
 
 
@@ -80,6 +94,13 @@ public class Lexer {
         }
         return 0;
     }
+    private static int getSubLabelEnd(String s, int i){
+        while(i<s.length()){
+            if (s.charAt(i) == '\'') return i;
+            i++;
+        }
+        return 0;
+    }
     private static int getVariableEnd(String s, int i){
         while(i<s.length()){
             if (s.charAt(i) == '$') return i;
@@ -89,7 +110,21 @@ public class Lexer {
     }
     private static int getNumberEnd(String s, int i){
         while(i<s.length()){
-            if (!Character.isDigit(s.charAt(i))) return i;
+            if ((!Character.isDigit(s.charAt(i))) && !(s.charAt(i)=='.')) return i;
+            i++;
+        }
+        return 0;
+    }
+    private static int getFuncEnd(String s, int i){
+        while(i<s.length()){
+            if (!Character.isLetter(s.charAt(i))) return i;
+            i++;
+        }
+        return 0;
+    }
+    private static int getLoopEnd(String s, int i){
+        while(i<s.length()){
+            if (s.charAt(i) == '@') return i;
             i++;
         }
         return 0;
