@@ -1,84 +1,57 @@
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+import gui.HexData;
+
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.nio.file.Path;
 
-
-public class HexFile {
-
+public class HexFile implements HexData
+{
     private String path;
     private String fileName;
-    private Byte[][] dataArray;
+    private Byte[][] data;
     private int size;
 
-
-    HexFile(){}
-    HexFile(String path){
-
-        byte[] byteArray = readBinaryFile(path);
+    HexFile(String path) {
+        byte[] byteArray = ByteTools.readBinaryFile(path);
         size = byteArray.length;
-        dataArray = new Byte[(int)Math.ceil(byteArray.length/16.0)][16];
 
+        data = new Byte[(int) Math.ceil(byteArray.length / 16.0)][16];
+        for (int i = 0; i < byteArray.length; i++) data[i / 16][i % 16] = byteArray[i];
 
-        for (int i = 0; i < byteArray.length; i++) {
-            dataArray[i / 16][i % 16] = byteArray[i];
-        }
-        Path p = Paths.get(path);
-        this.fileName = p.getFileName().toString();
+        this.fileName = Paths.get(path).getFileName().toString();
         this.path = path;
-
-    }
-    static byte[] readBinaryFile(String filename) {
-        try { return Files.readAllBytes(Paths.get(filename)); }
-        catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error: Could Not Read " + filename);
-        }
-    }
-    static void writeBinaryFile(byte[] bytes, String filename) {
-        try { Files.write(Paths.get(filename), bytes); }
-        catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error: Could Not Write to " + filename);
-        }
     }
 
-    public void saveAs(String p){
+    public void saveAs(String p) {
         byte[] b = new byte[size];
+        for (int i = 0; i < size; i++) b[i] = data[i / 16][i % 16];
 
-        for (int i = 0; i < size; i++) {
-            b[i] = dataArray[i / 16][i % 16];
-        }
-        writeBinaryFile(b, p);
+        ByteTools.writeBinaryFile(b, p);
     }
-    public void save(){
-        saveAs(path);
-    }
+    public void save() { saveAs(path); }
 
+    public String getPath() { return path; }
+    public void setPath(String path) { this.path = path; }
 
-    public String getPath() {
-        return path;
-    }
+    public String getFileName() { return fileName; }
+    public void setFileName(String fileName) { this.fileName = fileName; }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
+    public Byte[][] getData() { return data; }
+    public void setData(Byte[][] byteArray) { this.data = byteArray; }
 
-    public String getFileName() {
-        return fileName;
-    }
+    @Override
+    public int getRowCount() { return data.length; }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
+    @Override
+    public int getColumnCount() { return data.length > 0 ? data[0].length : 0; }
 
-    public Byte[][] getDataArray() {
-        return dataArray;
-    }
+    @Override
+    public Byte[] get(int row) { return data[row]; }
 
-    public void setDataArray(Byte[][] byteArray) {
-        this.dataArray = byteArray;
-    }
+    @Override
+    public Byte get(int row, int col) { return data[row][col]; }
+
+    @Override
+    public void set(int row, Byte[] value) { data[row] = value; }
+
+    @Override
+    public void set(int row, int col, Byte value) { data[row][col] = value; }
 }

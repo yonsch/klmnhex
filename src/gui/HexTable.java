@@ -1,329 +1,332 @@
 package gui;
 
-import java.awt.*;
-import java.beans.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
+import com.sun.javafx.scene.control.skin.TableViewSkin;
+import com.sun.javafx.scene.control.skin.VirtualFlow;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.util.converter.DefaultStringConverter;
 
-
-public class HexTable extends JScrollPane
+/**
+ * ಠ^ಠ.
+ * Created by Michael on 7/19/2017.
+ */
+public class HexTable extends TableView<Byte[]>
 {
     public enum DisplayMode { HEX, DECIMAL, UDECIMAL, CHAR }
 
-    private DisplayMode displayMode = DisplayMode.DECIMAL;
-    private JTable table;
-    private HexTableModel model;
+    private ObservableList columns;
+    private DataManager dataManager;
+    private DisplayMode displayMode = DisplayMode.HEX;
 
-    public HexTable(Object[][] data) {
-        this(new JTable());
-        model = new HexTableModel(data);
-        table.setModel(model);
+    // variables used for dragging
+    private HexColumn startCol, endCol;
+    private int startRow, endRow;
+    private boolean indexDrag = false;
+    // used to stop scrolling when reaching top/bottom
+    private boolean scrolling = false;
+
+    public HexTable() {
+        super();
+        columns = getColumns();
+        setEditable(true);
+
+        TableColumn index = new IndexColumn("index");
+        getColumns().add(index);
+        getSelectionModel().setCellSelectionEnabled(true);
+        getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        getSelectionModel().clearSelection();
+
+        getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> {
+            VirtualFlow vf = (VirtualFlow)((TableViewSkin) getSkin()).getChildren().get(1);
+            int first = vf.getFirstVisibleCellWithinViewPort().getIndex(),
+                    last = vf.getLastVisibleCellWithinViewPort().getIndex();
+
+            if (endRow > last) vf.scrollTo(endRow - last + first);
+            else if (endRow < first) vf.scrollTo(endRow);
+        }));
+        setEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            e.consume();
+            if (endCol == null) return;
+
+            int nextRow = endRow, nextCol = this.endCol.i;
+            switch (e.getCode()) {
+                case LEFT:
+                    if (nextCol - 1 == 0) { nextRow--; nextCol = columns.size() - 1; }
+                    else nextCol--;
+                    break;
+                case UP:
+                    if (nextRow == 0) {
+                        if (e.isShiftDown()) nextCol = 1;
+                        else if (!scrolling) nextRow = getItems().size() - 1;
+                    }
+                    else nextRow--;
+                    break;
+                case RIGHT:
+                    if (nextCol + 1 == columns.size() - 1) { nextRow++; nextCol = 1; }
+                    else nextCol++;
+                    break;
+                case DOWN:
+                    if (nextRow + 1 == getItems().size()) {
+                        if (e.isShiftDown()) nextCol = columns.size() - 1;
+                        else if (!scrolling) nextRow = 0;
+                    }
+                    else nextRow++;
+                    break;
+            }
+            scrolling = true;
+            if (e.isShiftDown()) selectRange(nextRow, nextCol);
+            else select(nextRow, nextCol);
+        });
+        addEventFilter(KeyEvent.KEY_RELEASED, e -> scrolling = false);
+    }
+    public HexTable(HexData hexData) {
+        this();
+        setData(hexData);
     }
 
-    private HexTable(JTable table) {
-        super(table);
+    public void setData(HexData hexData) {
+        TableColumn index = getColumns().get(0);
+        getColumns().clear();
+        getColumns().add(index);
 
-        this.table = table;
-        table.setShowVerticalLines(false);
-        table.getTableHeader().setResizingAllowed(false);
-        table.getTableHeader().setReorderingAllowed(false);
-        table.setDefaultRenderer(Object.class, new HexCellRenderer());
-        table.setDefaultEditor(Object.class, new PrintCellEditor(new JTextField()));
-        JTable rowTable = new RowNumberTable(table);
-        setRowHeaderView(rowTable);
-        setCorner(JScrollPane.UPPER_LEFT_CORNER, rowTable.getTableHeader());
+        if (hexData.getRowCount() == 0) return;
+
+        dataManager = new DataManager(hexData);
+        setItems(dataManager);
+
+        for (int i = 1; i < getColumnCount() + 1; i++) getColumns().add(new HexColumn(i));
+        setMaxWidth(40 * getColumnCount() + 75);
     }
+
+    // DO NOT use to get 0 (the index column). fixme
+    public HexColumn getColumn(int i) { return (HexColumn) columns.get(i); }
 
     public void setDisplayMode(DisplayMode displayMode) {
         this.displayMode = displayMode;
-        model.fireTableDataChanged();
+        refresh();
     }
 
-    public void setData(Object[][] data) { model.setData(data); }
+    public int getColumnCount() { return dataManager.getData().getColumnCount(); }
 
-    private class PrintCellEditor extends DefaultCellEditor
+    private class HexColumn extends TableColumn<Byte[], String>
     {
-        public PrintCellEditor(JTextField textField) { super(textField);}
+        private int i;
 
-        @Override
-        public Component getTableCellEditorComponent(JTable table, Object value,
-                                                     boolean isSelected,
-                                                     int row, int column) {
-            Component c =  super.getTableCellEditorComponent(table, value, isSelected, row, column);
-            String s = (String) delegate.getCellEditorValue();
-            switch (displayMode) {
-                case DECIMAL:
-                case UDECIMAL:
-                    break;
-                case HEX:
-                    delegate.setValue(String.format("%02X", Byte.parseByte(s)));
-                    break;
-                case CHAR:
-                    delegate.setValue((char) Byte.parseByte(s));
-            }
+        public HexColumn(int i) { this(String.format("%01X", i), i); }
+        public HexColumn(String s, int i) {
+            super(s);
 
-            return c;
-        }
-    }
+            this.i = i;
+            setPrefWidth(40);
+            setResizable(false);
+            setSortable(false);
 
-    /* a cell editor that supports different display modes */
-    private class HexCellRenderer extends DefaultTableCellRenderer
-    {
-        public HexCellRenderer() { super(); }
-
-        @Override
-        public Component getTableCellRendererComponent(
-                JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-
-            setHorizontalAlignment(SwingConstants.CENTER);
-
-            if (value != null) {
-                byte v = (byte) value;
+            setCellFactory(p -> new HexCell()); // TODO: index cells...
+            setOnEditCommit(t -> {
+                Byte res = null;
                 switch (displayMode) {
-                    case DECIMAL:
-                        setText(String.format("%d", v));
-                        break;
-                    case UDECIMAL:
-                        setText(String.format("%d", v & 0xFF));
-                        break;
                     case HEX:
-                        setText(String.format("%02X", v));
+                        try { res = Byte.parseByte(t.getNewValue(), 16); }
+                        catch (Exception e) { res = Byte.parseByte(t.getOldValue(), 16); }
+                        break;
+                    case DECIMAL:
+                    case UDECIMAL:
+                        try { res = Byte.parseByte(t.getNewValue()); }
+                        catch (Exception e) { res = Byte.parseByte(t.getOldValue()); }
                         break;
                     case CHAR:
-                        if (Character.isDefined(v)) setText(String.format("%c", v));
-                        else setText(".");
+                        if (t.getNewValue().length() == 1) res = (byte) t.getNewValue().charAt(0);
+                        else if (t.getNewValue().equals("\\n")) res = (byte)'\n';
+                        else if (t.getNewValue().equals("\\r")) res = (byte)'\r';
+                        else if (t.getNewValue().equals("\\t")) res = (byte)'\t';
+                        else res = (byte) t.getOldValue().charAt(0);
                 }
-            } else setText("- -");
+                t.getRowValue()[i - 1] = res;
+                t.getTableColumn().setVisible(false);
+                t.getTableColumn().setVisible(true);
+            });
 
-            setFont(getFont().deriveFont(Font.PLAIN));
-            if (isSelected) setBackground(table.getSelectionBackground());
-            else setBackground(table.getBackground());
+            setCellValueFactory(param -> {
+                Byte v = param.getValue()[i - 1];
+                if (v == null) return new SimpleStringProperty("- -");
+                switch (displayMode) {
+                    case DECIMAL:
+                        return new SimpleStringProperty(String.format("%d", v));
+                    case UDECIMAL:
+                        return new SimpleStringProperty(String.format("%d", v & 0xFF));
+                    case HEX:
+                        return new SimpleStringProperty(String.format("%02X", v));
+                    case CHAR:
+                        if (Character.isDefined(v)) {
+                            String c = Character.toString((char) v.byteValue());
+                            if (c.charAt(0) == '\r') c = "\\r";
+                            else if (c.charAt(0) == '\n') c = "\\n";
+                            else if (c.charAt(0) == '\t') c = "\\t";
+                            return new SimpleStringProperty(c);
+                        }
+                        else return new SimpleStringProperty(".");
+                }
 
-            return this;
-        }
-    }
+                return null;
+            });
 
-    /* a table model that supports changing table data */
-    private class HexTableModel extends AbstractTableModel
-    {
-        private Object[][] data;
-        private String[] headers;
-
-        public HexTableModel(Object[][] data) {
-            this.data = data;
-            generateHeaders(getColumnCount());
-        }
-
-        @Override
-        public int getRowCount() { return data.length; }
-
-        @Override
-        public int getColumnCount() { return data[0].length; }
-
-        @Override
-        public boolean isCellEditable(int row, int col) { return true; }
-
-        @Override
-        public Object getValueAt(int row, int col) { return data[row][col]; }
-
-        @Override
-        public void setValueAt(Object value, int row, int col) {
-            Byte res = null;
-            String s = (String) value;
-
-            switch (displayMode) {
-                case HEX:
-                    try { res = Byte.parseByte(s, 16); }
-                    catch (Exception e) { return; }
-                    break;
-                case DECIMAL:
-                case UDECIMAL:
-                    try { res = Byte.parseByte(s); }
-                    catch (Exception e) { return; }
-                    break;
-                case CHAR:
-                    if (s.length() > 1) return;
-                    res = (byte) s.charAt(0);
-            }
-
-            data[row][col] = res;
-            fireTableCellUpdated(row, col);
+            setOnKeyReleased(e -> {
+                if (!e.isShiftDown()) return; // handled OK by default
+                switch (e.getCode()) {
+                    case UP:
+                }
+            });
         }
 
-        @Override
-        public String getColumnName(int column) { return headers[column]; }
-
-        public void setData(Object[][] data) {
-            this.data = data;
-            generateHeaders(getColumnCount());
-            table.createDefaultColumnsFromModel();
-            fireTableDataChanged();
-        }
-
-        private void generateHeaders(int n) {
-            headers = new String[n];
-            for (int i = 0; i < n; i++)
-                headers[i] = String.format("%01X", i);
-        }
-    }
-
-    /*
-    *  Blatantly Stolen From http://www.camick.com/java/source/RowNumberTable.java
-    *
-    *	Use a JTable as a renderer for row numbers of a given main table.
-    *  This table must be added to the row header of the scrollpane that
-    *  contains the main table.
-    */
-    private static class RowNumberTable extends JTable
-            implements ChangeListener, PropertyChangeListener, TableModelListener
-    {
-        private JTable main;
-
-        public RowNumberTable(JTable table) {
-            main = table;
-            main.addPropertyChangeListener(this);
-            main.getModel().addTableModelListener(this);
-
-            setFocusable(false);
-            setAutoCreateColumnsFromModel(false);
-            setSelectionModel(main.getSelectionModel());
-
-
-            TableColumn column = new TableColumn();
-            column.setHeaderValue(" ");
-            addColumn(column);
-            column.setCellRenderer(new RowNumberRenderer());
-
-            getColumnModel().getColumn(0).setPreferredWidth(50);
-            setPreferredScrollableViewportSize(getPreferredSize());
-        }
-
-        @Override
-        public void addNotify() {
-            super.addNotify();
-
-            Component c = getParent();
-
-            //  Keep scrolling of the row table in sync with the main table.
-
-            if (c instanceof JViewport) {
-                JViewport viewport = (JViewport) c;
-                viewport.addChangeListener(this);
-            }
-        }
-
-        /*
-         *  Delegate method to main table
-         */
-        @Override
-        public int getRowCount() {
-            return main.getRowCount();
-        }
-
-        @Override
-        public int getRowHeight(int row) {
-            int rowHeight = main.getRowHeight(row);
-
-            if (rowHeight != super.getRowHeight(row)) {
-                super.setRowHeight(row, rowHeight);
-            }
-
-            return rowHeight;
-        }
-
-        /*
-         *  No model is being used for this table so just use the row number
-         *  as the value of the cell.
-         */
-        @Override
-        public Object getValueAt(int row, int column) {
-            return Integer.toString(row + 1);
-        }
-
-        /*
-         *  Don't edit data in the main TableModel by mistake
-         */
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-
-        /*
-         *  Do nothing since the table ignores the model
-         */
-        @Override
-        public void setValueAt(Object value, int row, int column) {}
-
-        //
-//  Implement the ChangeListener
-//
-        public void stateChanged(ChangeEvent e) {
-            //  Keep the scrolling of the row table in sync with main table
-
-            JViewport viewport = (JViewport) e.getSource();
-            JScrollPane scrollPane = (JScrollPane) viewport.getParent();
-            scrollPane.getVerticalScrollBar().setValue(viewport.getViewPosition().y);
-        }
-
-        //
-//  Implement the PropertyChangeListener
-//
-        public void propertyChange(PropertyChangeEvent e) {
-            //  Keep the row table in sync with the main table
-
-            if ("selectionModel".equals(e.getPropertyName())) {
-                setSelectionModel(main.getSelectionModel());
-            }
-
-            if ("rowHeight".equals(e.getPropertyName())) {
-                repaint();
-            }
-
-            if ("model".equals(e.getPropertyName())) {
-                main.getModel().addTableModelListener(this);
-                revalidate();
-            }
-        }
-
-        //
-//  Implement the TableModelListener
-//
-        @Override
-        public void tableChanged(TableModelEvent e) {
-            revalidate();
-        }
-
-        /*
-         *  Attempt to mimic the table header renderer
-         */
-        private static class RowNumberRenderer extends DefaultTableCellRenderer
+        private class HexCell extends TextFieldTableCell<Byte[], String>
         {
-            public RowNumberRenderer() {
-                setHorizontalAlignment(JLabel.CENTER);
+            public HexCell() {
+                super(new DefaultStringConverter());
+
+                setOnMousePressed(e -> select(getIndex(), HexColumn.this));
+                setOnDragDetected(e -> {
+                    startFullDrag();
+                    indexDrag = false;
+                });
+                setOnMouseDragEntered(e -> selectRange(getIndex(), HexColumn.this));
+
+                setAlignment(Pos.CENTER);
             }
 
-            public Component getTableCellRendererComponent(
-                    JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                if (table != null) {
-                    JTableHeader header = table.getTableHeader();
+            @Override
+            public void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
 
-                    if (header != null) {
-                        setForeground(header.getForeground());
-                        setBackground(header.getBackground());
-                        setFont(header.getFont());
-                    }
-                }
-
-                if (isSelected) {
-                    setFont(getFont().deriveFont(Font.BOLD));
-                }
-
-                setText((value == null) ? "" : value.toString());
-                setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-
-                return this;
+                if (empty) setText(null);
+                else setText(item);
             }
         }
+    }
+
+    private class IndexColumn extends TableColumn<Integer, String>
+    {
+        public IndexColumn(String name) {
+            super(name);
+
+            setEditable(false);
+            setPrefWidth(60);
+
+            setCellFactory(e -> new IndexCell());
+            setCellValueFactory(e -> null);
+        }
+
+        private class IndexCell extends TableCell<Integer, String>
+        {
+            public IndexCell() {
+                super();
+
+                // double-click
+                setOnMouseClicked(e -> {
+                    if (e.getClickCount() <= 1) getSelectionModel().clearSelection();
+                });
+                // double-click drag
+                addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+                    e.consume();
+                    if (e.getClickCount() > 1 && columns.size() > 1) {
+                        select(getIndex(), 1);
+                        selectRow(getIndex());
+                        indexDrag = true;
+                    }
+                });
+                // drag start
+                setOnDragDetected(e -> { if (indexDrag && startRow == getIndex()) startFullDrag(); });
+                // drag
+                setOnMouseDragEntered(e -> {
+                    if (!indexDrag) selectRange(getIndex(), (startRow > getIndex()) ? 1 : columns.size() - 1);
+                    else getSelectionModel().selectRange(startRow, getColumn(1),
+                            getIndex(), getColumn(columns.size() - 1));
+                });
+
+                getStyleClass().add("first-col");
+                setAlignment(Pos.CENTER);
+            }
+
+            @Override
+            public void updateIndex(int index) {
+                super.updateIndex(index);
+
+                if (isEmpty() || index < 0) setText(null);
+                else setText(String.format("%06d", index));
+            }
+        }
+    }
+
+    private void select(int row, int col) { select(row, getColumn(col)); }
+    private void select(int row, HexColumn col) {
+        startRow = row;
+        endRow = row;
+        startCol = col;
+        endCol = col;
+        getSelectionModel().clearSelection();
+        getSelectionModel().select(row, col);
+    }
+
+    private void selectRange(int row, int col) { selectRange(row, getColumn(col)); }
+    private void selectRange(int row, HexColumn col) {
+        endRow = row;
+        endCol = col;
+        getSelectionModel().clearSelection();
+        if (row < startRow) {
+            getSelectionModel().selectRange(row, col, row, getColumn(columns.size() - 1));
+            getSelectionModel().selectRange(startRow, startCol, startRow, getColumn(1));
+            for (int i = row + 1; i < startRow; i++) selectRow(i);
+        }
+        else if (row > startRow) {
+            getSelectionModel().selectRange(row, col, row, getColumn(1));
+            getSelectionModel().selectRange(startRow, startCol, startRow, getColumn(columns.size() - 1));
+            for (int i = startRow + 1; i < row; i++) selectRow(i);
+        }
+        else getSelectionModel().selectRange(row, col, startRow, startCol);
+    }
+
+    private void selectRow(int row) {
+        getSelectionModel().selectRange(row, getColumn(1), row, getColumn(columns.size() - 1));
+    }
+
+    public ListView<String> createHeader() {
+        ListView<String> res = new ListView<>();
+        res.setOrientation(Orientation.HORIZONTAL);
+        res.getItems().add("index");
+        res.setCellFactory(e -> {
+            ListCell<String> c = new ListCell<String>() {
+                @Override
+                public void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+
+                    if (empty) setText(null);
+                    else setText(item);
+                }
+
+                @Override
+                public void updateIndex(int index) {
+                    super.updateIndex(index);
+                    if (index == 0) setPrefWidth(60);
+                }
+            };
+
+            c.setAlignment(Pos.CENTER);
+            c.setPrefWidth(40);
+            return c;
+        });
+        for (int i = 0; i < 16; i++) res.getItems().add(String.format("%01X", i));
+        res.setEditable(false);
+        res.setMinHeight(35);
+        res.setMaxHeight(35);
+        res.setMaxWidth(40 * 16 + 60 + 15);
+        return res;
     }
 }

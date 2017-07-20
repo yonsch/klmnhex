@@ -1,10 +1,13 @@
-import gui.HexTableFX;
+import gui.HexTable;
 import javafx.application.Application;
+import javafx.event.Event;
+import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -26,7 +29,9 @@ public class KLMNx extends Application
 
         final HexFile[] f = new HexFile[1];
         f[0] = new HexFile("readme.md");
-        HexTableFX newTable = new HexTableFX(new Byte[0][0]);
+        HexTable table = new HexTable();
+        HexTable charTable = new HexTable();
+        charTable.setDisplayMode(HexTable.DisplayMode.CHAR);
 
         MenuBar menu = new MenuBar();
         menu.useSystemMenuBarProperty().set(true);
@@ -44,7 +49,8 @@ public class KLMNx extends Application
             if (selected == null) return;
 
             f[0] = new HexFile(selected.getAbsolutePath());
-            newTable.setData(f[0].getDataArray());
+            table.setData(f[0]);
+            charTable.setData(f[0]);
 
             primaryStage.setTitle("KLMN Hex Editor (" + selected.getAbsolutePath() + ")");
         });
@@ -74,7 +80,6 @@ public class KLMNx extends Application
                 new CheckMenuItem("Hex Mode"),
                 new CheckMenuItem("Signed Decimal Mode"),
                 new CheckMenuItem("Unsigned Decimal Mode"),
-                new CheckMenuItem("Character Mode"),
         }; selectMode.getItems().addAll(modes);
         modes[0].setSelected(true);
         for (int i = 0; i < modes.length; i++) {
@@ -82,16 +87,20 @@ public class KLMNx extends Application
             modes[n].setOnAction(e -> {
                 for (int j = 0; j < modes.length; j++)
                     modes[j].setSelected(j == n);
-                for (HexTableFX.DisplayMode j : HexTableFX.DisplayMode.values())
-                    if (j.ordinal() == n) newTable.setDisplayMode(j);
+                for (HexTable.DisplayMode j : HexTable.DisplayMode.values())
+                    if (j.ordinal() == n) table.setDisplayMode(j);
             });
         }
-        newTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         view.getItems().add(selectMode);
 
         root.setTop(menu);
-        root.setCenter(newTable);
+        VBox center = new VBox();
+        center.getChildren().add(table.createHeader());
+        center.getChildren().add(table);
+        root.setCenter(center);
+//        root.setRight(charTable);
         Scene scene = new Scene(root, 725, 500);
         scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.ESCAPE) System.exit(0);
