@@ -1,15 +1,10 @@
-import gui.HexTable;
 import gui.HexTableFX;
 import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.embed.swing.SwingNode;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -30,8 +25,11 @@ public class KLMNx extends Application
         BorderPane root = new BorderPane();
 
         final HexFile[] f = new HexFile[1];
-        HexTableFX newTable = new HexTableFX(new Byte[0][0]);
+        f[0] = new HexFile("readme.md");
+        HexTableFX newTable = new HexTableFX(f[0].getDataArray());
 
+        String poo = ".menu, .menu-item, .context-menu {\n-fx-background-color: red;\n}";
+        String menuStyle = "-fx-background-color: #666666;\n-fx-text-fill: #EEEEEE;";
         MenuBar menu = new MenuBar();
         menu.useSystemMenuBarProperty().set(true);
         Menu file = new Menu("File");
@@ -88,12 +86,18 @@ public class KLMNx extends Application
                     if (j.ordinal() == n) newTable.setDisplayMode(j);
             });
         }
+        newTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         view.getItems().add(selectMode);
 
         root.setTop(menu);
         root.setCenter(newTable);
-        primaryStage.setScene(new Scene(root, 720, 500));
+        Scene scene = new Scene(root, 725, 500);
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.ESCAPE) System.exit(0);
+        });
+        scene.getStylesheets().add("style.css");
+        primaryStage.setScene(scene);
 
         primaryStage.setOnCloseRequest(t -> System.exit(0));
         primaryStage.show();
