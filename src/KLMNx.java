@@ -26,10 +26,8 @@ public class KLMNx extends Application
 
         final HexFile[] f = new HexFile[1];
         f[0] = new HexFile("readme.md");
-        HexTableFX newTable = new HexTableFX(f[0].getDataArray());
+        HexTableFX newTable = new HexTableFX(new Byte[0][0]);
 
-        String poo = ".menu, .menu-item, .context-menu {\n-fx-background-color: red;\n}";
-        String menuStyle = "-fx-background-color: #666666;\n-fx-text-fill: #EEEEEE;";
         MenuBar menu = new MenuBar();
         menu.useSystemMenuBarProperty().set(true);
         Menu file = new Menu("File");
@@ -47,6 +45,8 @@ public class KLMNx extends Application
 
             f[0] = new HexFile(selected.getAbsolutePath());
             newTable.setData(f[0].getDataArray());
+
+            primaryStage.setTitle("KLMN Hex Editor (" + selected.getAbsolutePath() + ")");
         });
         MenuItem saveAs = new MenuItem("Save As");
         file.getItems().add(saveAs);
