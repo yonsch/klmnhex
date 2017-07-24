@@ -1,6 +1,5 @@
 package gui.table;
 
-import gui.DataManager;
 import gui.HexData;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
@@ -20,17 +19,14 @@ public class HexTable extends TableView<Byte[]>  // TODO: extend VBox instead an
     public enum DisplayMode { HEX, DECIMAL, UDECIMAL, CHAR }
 
     private ObservableList columns;
-    private DataManager dataManager;    // todo: kill this, combine with HexData
     private DisplayMode displayMode = DisplayMode.HEX;
-
-    public TableColumn index;
 
     int colWidth;
 
     public HexTable() {
         super();
 
-        index = new IndexColumn("index");
+        TableColumn index = new IndexColumn("index");
         getColumns().add(index);
 
         colWidth = 40;
@@ -40,13 +36,6 @@ public class HexTable extends TableView<Byte[]>  // TODO: extend VBox instead an
         setEditable(true);
 
         setSelectionModel(new HexSelectionModel(this, 1));
-    }
-
-    public void setData(HexData hexData) {
-        if (hexData.getRowCount() == 0) return;
-
-        dataManager = new DataManager(hexData);
-        setItems(dataManager);
     }
 
     public void setDisplayMode(DisplayMode displayMode) {

@@ -162,8 +162,14 @@ class HexSelectionModel extends TableView.TableViewSelectionModel<Byte[]>
 
     @Override
     public void clearSelection(int row, TableColumn<Byte[], ?> column) {
+        start = end = -1;                       // since selection is continuous, you can't deselect specific cells,
+        original.clearSelection(row, column);   // so everything is deselected if you try to
+    }
+
+    @Override
+    public void clearSelection() {
         start = end = -1;
-        original.clearSelection(row, column);
+        original.clearSelection();
     }
 
     // manually implemented in an EventHandler of tableView in the constructor

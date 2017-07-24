@@ -29,7 +29,7 @@ public class KLMNx extends Application
         final HexFile[] f = new HexFile[1];
         f[0] = new HexFile("readme.md");
         HexTable table = new HexTable();
-        table.setData(f[0]);
+        table.setItems(f[0]);
 
         MenuBar menu = new MenuBar();
         menu.useSystemMenuBarProperty().set(true);
@@ -48,7 +48,8 @@ public class KLMNx extends Application
             if (selected == null) return;
 
             f[0] = new HexFile(selected.getAbsolutePath());
-            table.setData(f[0]);
+            table.setItems(f[0]);
+            table.getSelectionModel().clearSelection();
 
             primaryStage.setTitle("KLMN Hex Editor (" + selected.getAbsolutePath() + ")");
         });

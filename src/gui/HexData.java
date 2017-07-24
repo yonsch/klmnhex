@@ -1,17 +1,35 @@
 package gui;
 
+import javafx.collections.ModifiableObservableListBase;
+import javafx.collections.ObservableList;
+
 /**
  * ಠ^ಠ.
  * Created by Michael on 7/20/2017.
  */
-public interface HexData
+public abstract class HexData extends ModifiableObservableListBase<Byte[]> implements ObservableList<Byte[]>
 {
-    int getRowCount();
-    int getColumnCount();
+    protected Byte[][] data;
 
-    Byte[] get(int row);
-    Byte get(int row, int col);
+    public HexData(Byte[][] data) { this.data = data; }
+    protected HexData() {}
 
-    void set(int row, Byte[] value);
-    void set(int row, int col, Byte value);
+    @Override
+    public Byte[] get(int index) { return data[index]; }
+
+    @Override
+    public int size() { return data.length; }
+
+    @Override
+    protected Byte[] doSet(int index, Byte[] element) {
+        Byte[] t = data[index];
+        data[index] = element;
+        return t;
+    }
+
+    // currently unused
+    @Override
+    protected void doAdd(int index, Byte[] element) {}
+    @Override
+    protected Byte[] doRemove(int index) { return null; }
 }

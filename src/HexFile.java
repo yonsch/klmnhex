@@ -2,14 +2,13 @@ import gui.HexData;
 
 import java.nio.file.Paths;
 
-public class HexFile implements HexData
+public class HexFile extends HexData
 {
     private String path;
     private String fileName;
-    private Byte[][] data;
     private int size;
 
-    HexFile(String path) {
+    public HexFile(String path) {
         byte[] byteArray = ByteTools.readBinaryFile(path);
         size = byteArray.length;
 
@@ -36,22 +35,4 @@ public class HexFile implements HexData
 
     public Byte[][] getData() { return data; }
     public void setData(Byte[][] byteArray) { this.data = byteArray; }
-
-    @Override
-    public int getRowCount() { return data.length; }
-
-    @Override
-    public int getColumnCount() { return data.length > 0 ? data[0].length : 0; }
-
-    @Override
-    public Byte[] get(int row) { return data[row]; }
-
-    @Override
-    public Byte get(int row, int col) { return data[row][col]; }
-
-    @Override
-    public void set(int row, Byte[] value) { data[row] = value; }
-
-    @Override
-    public void set(int row, int col, Byte value) { data[row][col] = value; }
 }
