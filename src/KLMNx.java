@@ -1,4 +1,5 @@
 import gui.table.HexTable;
+import gui.table.HexTableWrapper;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -27,9 +28,7 @@ public class KLMNx extends Application
         BorderPane root = new BorderPane();
 
         final HexFile[] f = new HexFile[1];
-        f[0] = new HexFile("readme.md");
-        HexTable table = new HexTable();
-        table.setItems(f[0]);
+        HexTableWrapper table = new HexTableWrapper();
 
         MenuBar menu = new MenuBar();
         menu.useSystemMenuBarProperty().set(true);
@@ -48,8 +47,8 @@ public class KLMNx extends Application
             if (selected == null) return;
 
             f[0] = new HexFile(selected.getAbsolutePath());
-            table.setItems(f[0]);
-            table.getSelectionModel().clearSelection();
+            table.setData(f[0]);
+            table.clearSelection();
 
             primaryStage.setTitle("KLMN Hex Editor (" + selected.getAbsolutePath() + ")");
         });
