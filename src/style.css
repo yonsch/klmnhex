@@ -2,8 +2,16 @@
     -fx-text-fill: #F0F7F4;
 }
 
+.menu-bar .mnemonic-underline {
+    -fx-stroke: -fx-text-fill;
+}
+
 .menu-item, .menu {
     -fx-accent: #4477BB;
+}
+
+.menu-item .accelerator-text {
+    -fx-text-fill: #909794;
 }
 
 .context-menu, .menu-bar {
@@ -22,7 +30,13 @@
     -fx-padding: -1em;
 }
 
-.table-view .increment-button ,.table-view .decrement-button {
+.scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-background-color: transparent;
+    -fx-padding: -1em;
+}
+
+.table-view .increment-button, .table-view .decrement-button {
     -fx-opacity: 0;
 }
 
@@ -36,18 +50,10 @@
 
 .table-view .scroll-bar .thumb:hover {
     -fx-background-color: #505050;
-    -fx-background-radius: 0;
-    -fx-border-color: #32292F;
-    -fx-opacity: 0.3;
-    -fx-background-insets: 0;
 }
 
 .table-view .scroll-bar .thumb:pressed {
     -fx-background-color: #707070;
-    -fx-background-radius: 0;
-    -fx-border-color: #32292F;
-    -fx-opacity: 0.3;
-    -fx-background-insets: 0;
 }
 
 .table-view .scroll-bar:vertical .track ,
@@ -68,9 +74,15 @@
 .table-view .table-cell {
     -fx-text-fill: #32292F;
     -fx-accent: #4477BB;
+    -fx-cell-size: 160;
 }
 
-.table-view .trail:even,
+.table-view .cell:selected {
+   -fx-background-color: #4477BB;
+   -fx-border-color: #4477BB;
+   -fx-border-width: 1;
+}
+
 .table-row-cell:even {
     -fx-background-color: -fx-table-cell-border-color, #70ABAF;
     -fx-background-insets: 0 0 1 0;
@@ -78,7 +90,6 @@
     -fx-padding: 0.0em;
 }
 
-.table-view .trail:odd,
 .table-row-cell:odd {
     -fx-background-color: -fx-table-cell-border-color, #99E1D9;
     -fx-border-width: 0;
@@ -86,30 +97,30 @@
     -fx-padding: 0.0em;
 }
 
-.table-view .first-col:even {
+.table-view .index-list:even {
     -fx-background-color: #705D56;
     -fx-border-color: #503D36;
     -fx-border-width: 0 1 1 0;
 }
 
-.table-view .first-col:odd {
+.table-view .index-list:odd {
     -fx-background-color: #806D66;
     -fx-border-color: #503D36;
     -fx-border-width: 0 1 1 0;
 }
 
-.list-view {
+.table-header {
     -fx-background-color: #D0D7D4;
     -fx-background-insets: 0;
 }
 
-.list-view .cell:even {
+.table-header .cell:even {
     -fx-background-color: #F0F7F4;
     -fx-text-fill: #70ABAF;
     -fx-padding: 0em;
 }
 
-.list-view .cell:odd {
+.table-header .cell:odd {
     -fx-background-color: #E0E7E4;
     -fx-text-fill: #70ABAF;
     -fx-padding: 0em;

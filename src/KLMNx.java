@@ -1,13 +1,12 @@
-import gui.HexTable;
+import gui.table.HexTable;
 import javafx.application.Application;
-import javafx.event.Event;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.*;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -30,15 +29,15 @@ public class KLMNx extends Application
         final HexFile[] f = new HexFile[1];
         f[0] = new HexFile("readme.md");
         HexTable table = new HexTable();
-        HexTable charTable = new HexTable();
-        charTable.setDisplayMode(HexTable.DisplayMode.CHAR);
+        table.setData(f[0]);
 
         MenuBar menu = new MenuBar();
         menu.useSystemMenuBarProperty().set(true);
-        Menu file = new Menu("File");
+        Menu file = new Menu("_File");
         menu.getMenus().add(file);
-        MenuItem open = new MenuItem("Open");
+        MenuItem open = new MenuItem("_Open");
         file.getItems().add(open);
+        open.setAccelerator(KeyCombination.keyCombination("ctrl+o"));
         open.setOnAction(e ->  {
             FileChooser chooser = new FileChooser();
             chooser.setInitialDirectory(new File(System.getProperty("user.home")));
@@ -50,11 +49,11 @@ public class KLMNx extends Application
 
             f[0] = new HexFile(selected.getAbsolutePath());
             table.setData(f[0]);
-            charTable.setData(f[0]);
 
             primaryStage.setTitle("KLMN Hex Editor (" + selected.getAbsolutePath() + ")");
         });
-        MenuItem saveAs = new MenuItem("Save As");
+        MenuItem saveAs = new MenuItem("Save _As");
+        saveAs.setAccelerator(KeyCombination.keyCombination("ctrl+alt+s"));
         file.getItems().add(saveAs);
         saveAs.setOnAction(e ->  {
             FileChooser chooser = new FileChooser();
@@ -65,17 +64,19 @@ public class KLMNx extends Application
 
             if (selected != null) f[0].saveAs(selected.getAbsolutePath());
         });
-        MenuItem save = new MenuItem("Save");
+        MenuItem save = new MenuItem("_Save");
+        save.setAccelerator(KeyCombination.keyCombination("ctrl+s"));
         file.getItems().add(save);
         MenuItem seperator0 = new SeparatorMenuItem();
         file.getItems().add(seperator0);
-        MenuItem exit = new MenuItem("Exit");
+        MenuItem exit = new MenuItem("_Exit");
+        exit.setAccelerator(KeyCombination.keyCombination("alt+f4"));
         file.getItems().add(exit);
         exit.setOnAction(e -> System.exit(0));
         save.setOnAction(e -> f[0].save());
-        Menu view = new Menu("View");
+        Menu view = new Menu("_View");
         menu.getMenus().add(view);
-        Menu selectMode = new Menu("Select View Mode");
+        Menu selectMode = new Menu("Select View _Mode");
         CheckMenuItem[] modes = {
                 new CheckMenuItem("Hex Mode"),
                 new CheckMenuItem("Signed Decimal Mode"),
@@ -91,26 +92,64 @@ public class KLMNx extends Application
                     if (j.ordinal() == n) table.setDisplayMode(j);
             });
         }
-        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         view.getItems().add(selectMode);
 
         root.setTop(menu);
-        VBox center = new VBox();
-        center.getChildren().add(table.createHeader());
-        center.getChildren().add(table);
-        root.setCenter(center);
-//        root.setRight(charTable);
-        Scene scene = new Scene(root, 725, 500);
+        root.setCenter(table);
+        Scene scene = new Scene(root, 1100, 700);
         scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.ESCAPE) System.exit(0);
         });
         scene.getStylesheets().add("style.css");
         primaryStage.setScene(scene);
 
-        primaryStage.setOnCloseRequest(t -> System.exit(0));
+        primaryStage.setOnCloseRequest(close -> System.exit(0));
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
     public static void main(String[] args) { launch(args); }
+
+    private class SB
+    {
+        private ScrollBar scrollBar = new ScrollBar(), old;
+        private HexTable table;
+        private HBox hBox;
+        private Pane center;
+        private BorderPane root;
+        public SB(ScrollBar old, HexTable table, HBox hBox, Pane center, BorderPane root) {
+            this.old = old;
+            this.hBox = hBox;
+            this.table = table;
+            this.center = center;
+            this.root = root;
+
+            ChangeListener<Scene> initializer = new ChangeListener<Scene>() {
+                @Override
+                public void changed(ObservableValue<? extends Scene> obs, Scene oldScene, Scene newScene)  {
+                    if (newScene != null) {
+                        scrollBar.applyCss();
+                        scrollBar.getParent().layout();
+                        Pane thumb = (Pane) scrollBar.lookup(".thumb");
+                        System.out.println(thumb); // <-- No longer null
+                        scrollBar.sceneProperty().removeListener(this);
+
+                        scrollBar.setTranslateX(-75);
+                        scrollBar.setOrientation(Orientation.VERTICAL);
+                        scrollBar.minProperty().bind(old.minProperty());
+                        scrollBar.maxProperty().bind(old.maxProperty());
+                        old.valueProperty().bindBidirectional(scrollBar.valueProperty());
+
+                        hBox.getChildren().addAll(table, scrollBar);
+                        center.getChildren().clear();
+                        center.getChildren().add(table.createHeader());
+                        center.getChildren().add(hBox);
+
+                        root.setCenter(center);
+                    }
+                }
+            }; scrollBar.sceneProperty().addListener(initializer);
+        }
+    }
 }
