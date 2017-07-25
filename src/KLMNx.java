@@ -3,6 +3,7 @@ import gui.table.HexTableWrapper;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -107,49 +108,5 @@ public class KLMNx extends Application
         primaryStage.setOnCloseRequest(close -> System.exit(0));
         primaryStage.setScene(scene);
         primaryStage.show();
-    }
-
-    public static void main(String[] args) { launch(args); }
-
-    private class SB
-    {
-        private ScrollBar scrollBar = new ScrollBar(), old;
-        private HexTable table;
-        private HBox hBox;
-        private Pane center;
-        private BorderPane root;
-        public SB(ScrollBar old, HexTable table, HBox hBox, Pane center, BorderPane root) {
-            this.old = old;
-            this.hBox = hBox;
-            this.table = table;
-            this.center = center;
-            this.root = root;
-
-            ChangeListener<Scene> initializer = new ChangeListener<Scene>() {
-                @Override
-                public void changed(ObservableValue<? extends Scene> obs, Scene oldScene, Scene newScene)  {
-                    if (newScene != null) {
-                        scrollBar.applyCss();
-                        scrollBar.getParent().layout();
-                        Pane thumb = (Pane) scrollBar.lookup(".thumb");
-                        System.out.println(thumb); // <-- No longer null
-                        scrollBar.sceneProperty().removeListener(this);
-
-                        scrollBar.setTranslateX(-75);
-                        scrollBar.setOrientation(Orientation.VERTICAL);
-                        scrollBar.minProperty().bind(old.minProperty());
-                        scrollBar.maxProperty().bind(old.maxProperty());
-                        old.valueProperty().bindBidirectional(scrollBar.valueProperty());
-
-                        hBox.getChildren().addAll(table, scrollBar);
-                        center.getChildren().clear();
-                        center.getChildren().add(table.createHeader());
-                        center.getChildren().add(hBox);
-
-                        root.setCenter(center);
-                    }
-                }
-            }; scrollBar.sceneProperty().addListener(initializer);
-        }
     }
 }

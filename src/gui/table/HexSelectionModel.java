@@ -4,12 +4,11 @@ import com.sun.javafx.scene.control.skin.TableViewSkin;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TablePosition;
-import javafx.scene.control.TableView;
+import javafx.event.EventHandler;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,21 +27,20 @@ class HexSelectionModel extends TableView.TableViewSelectionModel<Byte[]>
 
     private TableView.TableViewSelectionModel<Byte[]> original;
     private HashMap<TableColumn, Integer> columns = new HashMap<>();
+    private int ignoredSize = 0;
     private Set<TableColumn> ignored = new HashSet<>();
+    private Set<Integer> skipped = new HashSet<>();
 
     // whether the user is currently scrolling (if so, stop him at first/last rows)
     private boolean scrolling = false,
     // whether start is a row
     rowMode = false;
 
-    // offset is the number of ignored columns
-    public HexSelectionModel(TableView<Byte[]> tableView) { this(tableView, 0); }
-    public HexSelectionModel(TableView<Byte[]> tableView, int offset) {
+    public HexSelectionModel(TableView<Byte[]> tableView) {
         super(tableView);
         original = tableView.getSelectionModel();
 
-        for (int i = 0; i < offset; i++) ignored.add(tableView.getColumns().get(i));
-        for (int i = offset; i < tableView.getColumns().size(); i++) columns.put(tableView.getColumns().get(i), i - offset);
+        for (int i = 0; i < tableView.getColumns().size(); i++) columns.put(tableView.getColumns().get(i), i);
         width = columns.size();
         height = tableView.getItems().size();
         tableView.itemsProperty().addListener((obs, oldV, newV) -> height = tableView.getItems().size());
@@ -50,7 +48,7 @@ class HexSelectionModel extends TableView.TableViewSelectionModel<Byte[]>
         setSelectionMode(SelectionMode.MULTIPLE);
         setCellSelectionEnabled(true);
 
-        tableView.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+        EventHandler<KeyEvent> eventHandler = e -> {
             switch (e.getCode()) {
                 case LEFT:
                     e.consume();
@@ -82,8 +80,12 @@ class HexSelectionModel extends TableView.TableViewSelectionModel<Byte[]>
             }
             if (!e.isShiftDown()) start = end;
             else fixStartRow();
-            original.select(end / width, tableView.getColumns().get(end % width + offset));
+            original.select(end / width, tableView.getColumns().get(end % width + ignoredSize));
             scrolling = true;
+        };
+        tableView.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            eventHandler.handle(e);
+            if (skipped.contains(end % width + ignoredSize)) eventHandler.handle(e);
         });
         tableView.addEventFilter(KeyEvent.KEY_RELEASED, e -> scrolling = false);
 
@@ -91,12 +93,26 @@ class HexSelectionModel extends TableView.TableViewSelectionModel<Byte[]>
             VirtualFlow vf = (VirtualFlow)((TableViewSkin) tableView.getSkin()).getChildren().get(1);
             int first = vf.getFirstVisibleCellWithinViewPort().getIndex(),
                 last = vf.getLastVisibleCellWithinViewPort().getIndex(),
-                current = end / 16;
+                current = end / width;
 
             if (current > last) vf.scrollTo(current - last + first);
             else if (current < first) vf.scrollTo(current);
         }));
     }
+
+    public void ignore(TableColumn... ignore) {
+        int l = ignored.size();
+        ignored.addAll(Arrays.asList(ignore));
+        ignoredSize = ignored.size();
+        width -= ignoredSize - l;
+        columns.clear();
+
+        int i = 0;
+        for (TableColumn t : getTableView().getColumns())
+            if (!ignored.contains(t)) columns.put(t, i++);
+    }
+
+    public void skip(Integer... skip) { skipped.addAll(Arrays.asList(skip)); }
 
     private int getIndex(int row, int col) { return row * width + col; }
     private int getIndex(int row, TableColumn col) { return row * width + columns.get(col); }
@@ -171,6 +187,8 @@ class HexSelectionModel extends TableView.TableViewSelectionModel<Byte[]>
         start = end = -1;
         original.clearSelection();
     }
+
+    public TableView.TableViewSelectionModel<Byte[]> getOriginal() { return original; }
 
     // manually implemented in an EventHandler of tableView in the constructor
     @Override

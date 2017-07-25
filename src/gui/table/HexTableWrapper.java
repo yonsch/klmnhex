@@ -1,11 +1,8 @@
 package gui.table;
 
 import javafx.scene.control.ListView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 /**
  * ಠ^ಠ.
@@ -21,7 +18,7 @@ public class HexTableWrapper extends VBox
     public HexTableWrapper() {
         super();
         table = new HexTable();
-        header = table.createHeader();
+        header = table.generateHeader();
 
         getChildren().add(header);
         getChildren().add(table);

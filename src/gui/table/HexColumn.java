@@ -1,9 +1,13 @@
 package gui.table;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.event.Event;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.util.converter.DefaultStringConverter;
 
 /**
@@ -15,9 +19,9 @@ import javafx.util.converter.DefaultStringConverter;
 class HexColumn extends TableColumn<Byte[], String>
 {
     HexColumn(int i) {
-        super("");
+        super(String.format("%01X", i));
 
-        setPrefWidth(40); // default width, can be changed
+        setPrefWidth(30); // default width, can be changed
         setResizable(false);
         setSortable(false);
 
@@ -46,7 +50,7 @@ class HexColumn extends TableColumn<Byte[], String>
                     else if (t.getNewValue().equals("\\t")) res = (byte)'\t';
                     else res = (byte) t.getOldValue().charAt(0);
             }
-            t.getRowValue()[i - 1] = res;
+            t.getRowValue()[i] = res;
             t.getTableColumn().setVisible(false);
             t.getTableColumn().setVisible(true);
         });
@@ -56,7 +60,7 @@ class HexColumn extends TableColumn<Byte[], String>
                 return new SimpleStringProperty("err");
             }
 
-            Byte v = param.getValue()[i - 1];
+            Byte v = param.getValue()[i];
             if (v == null) return new SimpleStringProperty("- -");
             switch (((HexTable) getTableView()).getDisplayMode()) {
                 case DECIMAL:
@@ -80,6 +84,7 @@ class HexColumn extends TableColumn<Byte[], String>
         });
     }
 
+    public Pos alignment = Pos.CENTER;
     private class HexCell extends TextFieldTableCell<Byte[], String>
     {
         HexCell() {
@@ -89,7 +94,7 @@ class HexColumn extends TableColumn<Byte[], String>
             setOnDragDetected(e -> startFullDrag());
             setOnMouseDragEntered(e -> getTableView().getSelectionModel().select(getIndex(), HexColumn.this));
 
-            setAlignment(Pos.CENTER);
+            setAlignment(alignment);
         }
 
         @Override

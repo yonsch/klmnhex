@@ -84,14 +84,14 @@
 }
 
 .table-row-cell:even {
-    -fx-background-color: -fx-table-cell-border-color, #70ABAF;
+    -fx-background-color: #70ABAF;
     -fx-background-insets: 0 0 1 0;
     -fx-border-width: 0;
     -fx-padding: 0.0em;
 }
 
 .table-row-cell:odd {
-    -fx-background-color: -fx-table-cell-border-color, #99E1D9;
+    -fx-background-color: #99E1D9;
     -fx-border-width: 0;
     -fx-background-insets: 0 0 1 0;
     -fx-padding: 0.0em;
@@ -107,6 +107,11 @@
     -fx-background-color: #806D66;
     -fx-border-color: #503D36;
     -fx-border-width: 0 1 1 0;
+}
+
+.text-field-table-cell .text-field {
+    -fx-background-radius: 0;
+    -fx-padding: 0;
 }
 
 .table-header {

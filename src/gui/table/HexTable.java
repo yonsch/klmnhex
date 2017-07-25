@@ -19,11 +19,19 @@ public class HexTable extends TableView<Byte[]>
 
         getColumns().add(new IndexColumn("index"));
 
-        for (int i = 1; i < 17; i++) getColumns().add(new HexColumn(i));
-        setMaxWidth(40 * 16 + 95);
+        for (int i = 0; i < 4; i++) getColumns().add(new HexColumn(i));
+        for (int i = 4; i < 16; i++) getColumns().add(new HexColumn(i));
+        getColumns().add(5, new SpacingColumn());
+        getColumns().add(10, new SpacingColumn());
+        getColumns().add(15, new SpacingColumn());
+        setMaxWidth(30 * 17 + 95);
+
         setEditable(true);
 
-        setSelectionModel(new HexSelectionModel(this, 1));
+        HexSelectionModel selectionModel = new HexSelectionModel(this);
+        selectionModel.ignore(getColumns().get(0));
+        selectionModel.skip(5, 10, 15);
+        setSelectionModel(selectionModel);
     }
 
     public void setDisplayMode(DisplayMode displayMode) {
@@ -32,10 +40,9 @@ public class HexTable extends TableView<Byte[]>
     }
     public DisplayMode getDisplayMode() { return displayMode; }
 
-    public ListView<String> createHeader() {
+    public ListView<String> generateHeader() {
         ListView<String> res = new ListView<>();
         res.setOrientation(Orientation.HORIZONTAL);
-        res.getItems().add("index");
         res.setCellFactory(e -> {
             ListCell<String> c = new ListCell<String>() {
                 @Override
@@ -45,19 +52,19 @@ public class HexTable extends TableView<Byte[]>
                     if (empty) setText(null);
                     else setText(item);
                 }
-
                 @Override
                 public void updateIndex(int index) {
                     super.updateIndex(index);
-                    if (index == 0) setPrefWidth(60);
+                    if (index >=0 && index < getColumns().size())
+                        setPrefWidth(getColumns().get(index).getPrefWidth());
                 }
             };
 
             c.setAlignment(Pos.CENTER);
-            c.setPrefWidth(40);
             return c;
         });
-        for (int i = 0; i < 16; i++) res.getItems().add(String.format("%01X", i));
+        for (int i = 0; i < getColumns().size(); i++)
+            res.getItems().add(getColumns().get(i).getText());
         res.setEditable(false);
         res.setMinHeight(35); //
         res.setMaxHeight(35); // not resizable
