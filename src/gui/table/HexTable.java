@@ -24,7 +24,7 @@ public class HexTable extends TableView<Byte[]>
         getColumns().add(5, new SpacingColumn());
         getColumns().add(10, new SpacingColumn());
         getColumns().add(15, new SpacingColumn());
-        setMaxWidth(30 * 17 + 95);
+        setMaxWidth(25 * 16 + 10 * 3 + 80 + 20);
 
         setEditable(true);
 
@@ -55,8 +55,10 @@ public class HexTable extends TableView<Byte[]>
                 @Override
                 public void updateIndex(int index) {
                     super.updateIndex(index);
-                    if (index >=0 && index < getColumns().size())
+                    if (index >=0 && index < getColumns().size()) {
                         setPrefWidth(getColumns().get(index).getPrefWidth());
+                        if (getPrefWidth() == 80) setPrefWidth(84); // not sure why...
+                    }
                 }
             };
 

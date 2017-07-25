@@ -1,5 +1,13 @@
+* {
+     -palette-dark-color:#34363E;
+     -palette-light-color:#E7F9F8;
+     -palette-midtone1-color:#A9B3CE;
+     -palette-midtone2-color:#7284A8;
+     -palette-accent-color:#9E788F;
+}
+
 .menu-bar .label {
-    -fx-text-fill: #F0F7F4;
+    -fx-text-fill: -palette-light-color;
 }
 
 .menu-bar .mnemonic-underline {
@@ -16,13 +24,13 @@
 
 .context-menu, .menu-bar {
     -fx-border-color: #222222;
-    -fx-background-color: #32292F;
+    -fx-background-color: -palette-dark-color;
     -fx-padding: 0;
 }
 
 .table-view {
     -fx-padding: 0;
-    -fx-background-color: #F0F7F4;
+    -fx-background-color: -palette-light-color;
     -fx-table-cell-border-color: transparent;
 }
 
@@ -41,11 +49,12 @@
 }
 
 .table-view .scroll-bar:vertical .thumb {
-    -fx-background-color: #705D56;
+    -fx-background-color: -palette-accent-color;
     -fx-background-radius: 0;
-    -fx-border-color: #32292F;
+    -fx-border-color: -palette-dark-color;
     -fx-opacity: 0.3;
     -fx-background-insets: 0;
+    -fx-padding: -1em;
 }
 
 .table-view .scroll-bar .thumb:hover {
@@ -72,7 +81,7 @@
 }
 
 .table-view .table-cell {
-    -fx-text-fill: #32292F;
+    -fx-text-fill: -palette-dark-color;
     -fx-accent: #4477BB;
     -fx-cell-size: 160;
 }
@@ -84,28 +93,28 @@
 }
 
 .table-row-cell:even {
-    -fx-background-color: #70ABAF;
+    -fx-background-color: derive(-palette-light-color, -5%);
     -fx-background-insets: 0 0 1 0;
     -fx-border-width: 0;
     -fx-padding: 0.0em;
 }
 
 .table-row-cell:odd {
-    -fx-background-color: #99E1D9;
+    -fx-background-color: -palette-light-color;
     -fx-border-width: 0;
     -fx-background-insets: 0 0 1 0;
     -fx-padding: 0.0em;
 }
 
 .table-view .index-list:even {
-    -fx-background-color: #705D56;
-    -fx-border-color: #503D36;
+    -fx-background-color: -palette-midtone1-color;
+    -fx-border-color: -palette-midtone1-color;
     -fx-border-width: 0 1 1 0;
 }
 
 .table-view .index-list:odd {
-    -fx-background-color: #806D66;
-    -fx-border-color: #503D36;
+    -fx-background-color: -palette-midtone2-color;
+    -fx-border-color: -palette-midtone2-color;
     -fx-border-width: 0 1 1 0;
 }
 
@@ -115,18 +124,19 @@
 }
 
 .table-header {
-    -fx-background-color: #D0D7D4;
+    -fx-background-color: -palette-accent-color;
     -fx-background-insets: 0;
+    -fx-background-radius: 0;
 }
 
 .table-header .cell:even {
-    -fx-background-color: #F0F7F4;
-    -fx-text-fill: #70ABAF;
+    -fx-background-color: -palette-accent-color;
+    -fx-text-fill: -palette-light-color;
     -fx-padding: 0em;
 }
 
 .table-header .cell:odd {
-    -fx-background-color: #E0E7E4;
-    -fx-text-fill: #70ABAF;
+    -fx-background-color: -palette-accent-color;
+    -fx-text-fill: -palette-light-color;
     -fx-padding: 0em;
 }

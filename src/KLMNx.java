@@ -13,6 +13,12 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /**
  * ಠ^ಠ.
@@ -22,14 +28,31 @@ public class KLMNx extends Application
 {
     // Now Using--  J-F-X! Mm hm ಠ_ರೃ so fancy
 
+    private void setPalette() throws Exception {
+        Path path = Paths.get("src/style.css");
+
+//        int[] palette = {0x32292F, 0xF0F7F4, 0x99E1D9, 0x70ABAF, 0x705D56}; //default
+//        int[] palette = {0x0, 0xFFFFFF, 0xCCCCCC, 0xAAAAAA, 0xDD1133}; // international yummies
+        int[] palette = {0x34363E, 0xE7F9F8, 0xA9B3CE, 0x7284A8, 0x9E788F}; // erik
+        String[] names = {"-palette-dark-color", "-palette-light-color", "-palette-midtone1-color", "palette-midtone2-color", "palette-accent-color"};
+
+        String css = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+        for (int i = 0; i < 5; i++)
+            css = css.replaceAll(names[i] + ":#.*?;", String.format(names[i] + ":#%06X;", palette[i]));
+        Files.write(path, css.getBytes(StandardCharsets.UTF_8));
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("KLMN Hex Editor");
+        setPalette();
 
         BorderPane root = new BorderPane();
 
         final HexFile[] f = new HexFile[1];
+        f[0] = new HexFile("readme.md");
         HexTableWrapper table = new HexTableWrapper();
+        table.setData(f[0]);
 
         MenuBar menu = new MenuBar();
         menu.useSystemMenuBarProperty().set(true);
@@ -98,7 +121,8 @@ public class KLMNx extends Application
 
         root.setTop(menu);
         root.setCenter(table);
-        Scene scene = new Scene(root, 1100, 700);
+        root.setMinWidth(table.getTable().getMaxWidth());
+        Scene scene = new Scene(root, table.getTable().getMaxWidth(), 700);
         scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.ESCAPE) System.exit(0);
         });
