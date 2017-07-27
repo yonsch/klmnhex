@@ -9,9 +9,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
+import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javax.xml.soap.Text;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -121,8 +123,7 @@ public class KLMNx extends Application
 
         root.setTop(menu);
         root.setCenter(table);
-        root.setMinWidth(table.getTable().getMaxWidth());
-        Scene scene = new Scene(root, table.getTable().getMaxWidth(), 700);
+        Scene scene = new Scene(root, table.getPrefWidth(), 700);
         scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.ESCAPE) System.exit(0);
         });

@@ -13,25 +13,32 @@ public class HexTable extends TableView<Byte[]>
     public enum DisplayMode { HEX, DECIMAL, UDECIMAL, CHAR }
 
     private DisplayMode displayMode = DisplayMode.HEX;
+    private int hexIndex = 0;
 
     public HexTable() {
         super();
-
-        getColumns().add(new IndexColumn("index"));
-
-        for (int i = 0; i < 4; i++) getColumns().add(new HexColumn(i));
-        for (int i = 4; i < 16; i++) getColumns().add(new HexColumn(i));
-        getColumns().add(5, new SpacingColumn());
-        getColumns().add(10, new SpacingColumn());
-        getColumns().add(15, new SpacingColumn());
-        setMaxWidth(25 * 16 + 10 * 3 + 80 + 20);
-
+        setPrefWidth(20);
         setEditable(true);
+        setSelectionModel(new HexSelectionModel(this));
+    }
 
-        HexSelectionModel selectionModel = new HexSelectionModel(this);
-        selectionModel.ignore(getColumns().get(0));
-        selectionModel.skip(5, 10, 15);
-        setSelectionModel(selectionModel);
+    public void addHexColumns(int count) {
+        for (int i = 0, offset = hexIndex; i < count; i++, hexIndex++)
+            getColumns().add(new HexColumn(i + offset));
+        setPrefWidth(getPrefWidth() + count * 27);
+    }
+
+    public void addIndexColumn() {
+        IndexColumn column = new IndexColumn("index");
+        getColumns().add(column);
+        ((HexSelectionModel) getSelectionModel()).ignore(column);
+        setPrefWidth(getPrefWidth() + 80);
+    }
+
+    public void addSpacingColumn() {
+        ((HexSelectionModel) getSelectionModel()).skip(getColumns().size());
+        getColumns().add(new SpacingColumn());
+        setPrefWidth(getPrefWidth() + 10);
     }
 
     public void setDisplayMode(DisplayMode displayMode) {

@@ -21,7 +21,7 @@ class HexColumn extends TableColumn<Byte[], String>
     HexColumn(int i) {
         super(String.format("%01X", i));
 
-        setPrefWidth(25); // default width, can be changed
+        setPrefWidth(27); // default width, can be changed
         setResizable(false);
         setSortable(false);
 
