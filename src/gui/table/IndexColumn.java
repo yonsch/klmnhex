@@ -13,6 +13,7 @@ import javafx.scene.input.MouseEvent;
  */
 class IndexColumn extends TableColumn<Byte[], String>
 {
+    private int radix = 16;
     IndexColumn(String text) {
         super(text);
 
@@ -22,6 +23,8 @@ class IndexColumn extends TableColumn<Byte[], String>
         setCellFactory(e -> new IndexCell());
         setCellValueFactory(e -> null);
     }
+
+    public void setRadix(int radix) { this.radix = radix; }
 
     private class IndexCell extends TableCell<Byte[], String>
     {
@@ -47,7 +50,7 @@ class IndexColumn extends TableColumn<Byte[], String>
             super.updateIndex(index);
 
             if (isEmpty() || index < 0) setText(null);
-            else setText(String.format("%08X", index));
+            else setText(String.format("%1$8s", Integer.toString(index * 16, radix).toUpperCase()).replace(' ', '0'));
         }
     }
 }

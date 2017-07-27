@@ -86,7 +86,11 @@
 .table-view .table-cell {
     -fx-text-fill: -palette-dark-color;
     -fx-accent: #4477BB;
-    -fx-cell-size: 160;
+}
+
+.table-view .table-cell:null-value {
+    -fx-text-fill: derive(-palette-light-color, -20%);
+    -fx-accent: #4477BB;
 }
 
 .table-view .cell:selected {
@@ -145,12 +149,12 @@
 }
 
 .hex-text {
-    -fx-font-family: Monospaced;
     -fx-padding: 0;
     -fx-background-insets: 0;
 }
 
 .hex-text .cell {
+    -fx-font-family: Monospaced;
     -fx-background-color: derive(-palette-light-color, 25%);
     -fx-cell-size: 29px;
 }

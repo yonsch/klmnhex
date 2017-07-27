@@ -54,7 +54,6 @@ public class KLMNx extends Application
         final HexFile[] f = new HexFile[1];
         f[0] = new HexFile("readme.md");
         HexTableWrapper table = new HexTableWrapper();
-        table.setData(f[0]);
 
         MenuBar menu = new MenuBar();
         menu.useSystemMenuBarProperty().set(true);
@@ -118,6 +117,21 @@ public class KLMNx extends Application
                     if (j.ordinal() == n) table.setDisplayMode(j);
             });
         }
+        Menu indexRadix = new Menu("Select _Index Base");
+        view.getItems().add(indexRadix);
+        CheckMenuItem base16 = new CheckMenuItem("Hexadecimal");
+        CheckMenuItem base10 = new CheckMenuItem("Decimal");
+        base16.setSelected(true);
+        base10.setOnAction(e -> {
+            base10.setSelected(true);
+            base16.setSelected(false);
+            table.setRadix(10);
+        });
+        base16.setOnAction(e -> {
+            base16.setSelected(true);
+            base10.setSelected(false);
+            table.setRadix(16);
+        }); indexRadix.getItems().addAll(base16, base10);
 
         view.getItems().add(selectMode);
 

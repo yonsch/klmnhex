@@ -14,7 +14,9 @@ public class HexTable extends TableView<Byte[]>
 
     private DisplayMode displayMode = DisplayMode.HEX;
     private int hexIndex = 0;
+    EditListener onEdit = null;
 
+    // selection takes about 5 times more nano seconds, but still not very bad
     public HexTable() {
         super();
         setPrefWidth(20);
@@ -46,6 +48,9 @@ public class HexTable extends TableView<Byte[]>
         refresh();
     }
     public DisplayMode getDisplayMode() { return displayMode; }
+
+    public interface EditListener { void onEdit(int row, HexColumn column); }
+    public void setOnEdit(EditListener onEdit) { this.onEdit = onEdit; }
 
     public ListView<String> generateHeader() {
         ListView<String> res = new ListView<>();

@@ -1,10 +1,12 @@
 package gui.table;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.css.PseudoClass;
 import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TablePosition;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -18,9 +20,11 @@ import javafx.util.converter.DefaultStringConverter;
  */
 class HexColumn extends TableColumn<Byte[], String>
 {
+    private int i;
     HexColumn(int i) {
         super(String.format("%01X", i));
 
+        this.i = i;
         setPrefWidth(27); // default width, can be changed
         setResizable(false);
         setSortable(false);
@@ -48,11 +52,17 @@ class HexColumn extends TableColumn<Byte[], String>
                     else if (t.getNewValue().equals("\\n")) res = (byte)'\n';
                     else if (t.getNewValue().equals("\\r")) res = (byte)'\r';
                     else if (t.getNewValue().equals("\\t")) res = (byte)'\t';
+                    else if (t.getNewValue().equals("")) res = (byte)' ';
                     else res = (byte) t.getOldValue().charAt(0);
             }
             t.getRowValue()[i] = res;
             t.getTableColumn().setVisible(false);
             t.getTableColumn().setVisible(true);
+
+            if (((HexTable) getTableView()).onEdit != null) {
+                TablePosition<Byte[], String> pos = t.getTablePosition();
+                ((HexTable) getTableView()).onEdit.onEdit(pos.getRow(), (HexColumn) pos.getTableColumn());
+            }
         });
         setCellValueFactory(param -> {
             if (!(getTableView() instanceof HexTable)) {
@@ -61,7 +71,8 @@ class HexColumn extends TableColumn<Byte[], String>
             }
 
             Byte v = param.getValue()[i];
-            if (v == null) return new SimpleStringProperty("- -");
+            if (((HexTable) getTableView()).getDisplayMode() != HexTable.DisplayMode.CHAR
+                    && v == null) return new SimpleStringProperty("- -");
             switch (((HexTable) getTableView()).getDisplayMode()) {
                 case DECIMAL:
                     return new SimpleStringProperty(String.format("%d", v));
@@ -70,19 +81,17 @@ class HexColumn extends TableColumn<Byte[], String>
                 case HEX:
                     return new SimpleStringProperty(String.format("%02X", v));
                 case CHAR:
-                    if (Character.isDefined(v)) {
-                        String c = Character.toString((char) v.byteValue());
-                        if (c.charAt(0) == '\r') c = "\\r";
-                        else if (c.charAt(0) == '\n') c = "\\n";
-                        else if (c.charAt(0) == '\t') c = "\\t";
-                        return new SimpleStringProperty(c);
-                    }
-                    else return new SimpleStringProperty(".");
+                    if (v == null) return null;
+                    if (!Character.isDefined(v) || v == '\n' || v == '\r' || v == '\t' || v == '\0')
+                        return new SimpleStringProperty(".");
+                    return new SimpleStringProperty(Character.toString((char) v.byteValue()));
             }
 
             return null;
         });
     }
+
+    public int getIndex() { return i; }
 
     public Pos alignment = Pos.CENTER;
     private class HexCell extends TextFieldTableCell<Byte[], String>
@@ -102,8 +111,13 @@ class HexColumn extends TableColumn<Byte[], String>
         public void updateItem(String item, boolean empty) {
             super.updateItem(item, empty);
 
-            if (empty) setText(null);
-            else setText(item);
+            if (empty) {
+                setText(null);
+                return;
+            }
+
+            pseudoClassStateChanged(PseudoClass.getPseudoClass("null-value"), item == null);
+            setText(item == null ? "." : item);
         }
     }
 }

@@ -203,12 +203,16 @@ class HexSelectionModel extends TableView.TableViewSelectionModel<Byte[]>
 
     // manually implemented in an EventHandler of tableView in the constructor
     @Override
+    @Deprecated
     public void selectLeftCell() {}
     @Override
+    @Deprecated
     public void selectRightCell() {}
     @Override
+    @Deprecated
     public void selectAboveCell() {}
     @Override
+    @Deprecated
     public void selectBelowCell() {}
 
     public IntegerProperty startProperty() { return start.getProperty(); }
