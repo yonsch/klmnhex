@@ -1,14 +1,10 @@
 package gui.table;
 
-import gui.HexText;
 import javafx.application.Platform;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 
 /**
  * ಠ^ಠ.
@@ -41,7 +37,6 @@ public class HexTableWrapper extends VBox
         text.setPrefWidth(15 * 16);
         text.getStyleClass().add("hex-text");
 
-        // todo: convert HexSelectionModel's start & end to properties (maybe use something similar to text's selectionProperty)
         Platform.runLater(() ->
                 ((ScrollBar)table.lookup(".scroll-bar")).valueProperty().bindBidirectional(
                         ((ScrollBar) text.lookup(".scroll-bar")).valueProperty())

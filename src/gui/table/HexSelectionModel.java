@@ -201,8 +201,6 @@ class HexSelectionModel extends TableView.TableViewSelectionModel<Byte[]>
         original.clearSelection();
     }
 
-    public TableView.TableViewSelectionModel<Byte[]> getOriginal() { return original; }
-
     // manually implemented in an EventHandler of tableView in the constructor
     @Override
     public void selectLeftCell() {}
