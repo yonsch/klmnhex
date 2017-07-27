@@ -163,9 +163,6 @@ class HexSelectionModel extends TableView.TableViewSelectionModel<Byte[]>
         start.set((int) getIndex(row, column));
         end.set(start.get());
         rowMode = false;
-
-//        original.clearSelection();
-//        original.select(row, column);  // for some reason, original.clearAndSelect() doesn't behave properly
     }
 
     @Override
@@ -174,8 +171,6 @@ class HexSelectionModel extends TableView.TableViewSelectionModel<Byte[]>
         end.set(row * width);
         if (end.get() > start.get()) end.add(width - 1);
         if (start != end) fixStartRow();
-
-//        original.select(row);
     }
 
     @Override
@@ -184,9 +179,6 @@ class HexSelectionModel extends TableView.TableViewSelectionModel<Byte[]>
         start.set(row * width);
         end.set(start.get() + width - 1);
         rowMode = true;
-
-//        original.clearSelection();
-//        original.select(row);  // for some reason, original.clearAndSelect() doesn't behave properly
     }
 
     private void fixStartRow() {

@@ -14,7 +14,9 @@ class SpacingColumn extends TableColumn<Byte[], String>
         setPrefWidth(10);
         setCellFactory(e -> {
             TableCell<Byte[], String> c = new TableCell<>();
-            c.setMouseTransparent(true);
+
+            c.setOnMousePressed(e1 -> getTableView().getSelectionModel().clearAndSelect(c.getIndex(), this));
+            c.setOnDragDetected(e1 -> c.startFullDrag());
             return c;
         });
     }
