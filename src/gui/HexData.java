@@ -1,4 +1,4 @@
-package gui.table;
+package gui;
 
 import javafx.collections.ModifiableObservableListBase;
 import javafx.collections.ObservableList;

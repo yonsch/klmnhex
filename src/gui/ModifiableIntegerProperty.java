@@ -1,4 +1,4 @@
-package gui.table;
+package gui;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;

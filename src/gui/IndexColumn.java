@@ -1,4 +1,4 @@
-package gui.table;
+package gui;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;

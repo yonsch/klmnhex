@@ -1,15 +1,12 @@
-package gui.table;
+package gui;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.css.PseudoClass;
-import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.util.converter.DefaultStringConverter;
 
 /**
@@ -30,40 +27,6 @@ class HexColumn extends TableColumn<Byte[], String>
         setSortable(false);
 
         setCellFactory(p -> new HexCell());
-        setOnEditCommit(t -> {
-            if (!(getTableView() instanceof HexTable)) {
-                System.err.println("Warning: HexColumn used outside of HexTable!");
-                return;
-            }
-
-            Byte res = null;
-            switch (((HexTable) getTableView()).getDisplayMode()) {
-                case HEX:
-                    try { res = Byte.parseByte(t.getNewValue(), 16); }
-                    catch (Exception e) { res = Byte.parseByte(t.getOldValue(), 16); }
-                    break;
-                case DECIMAL:
-                case UDECIMAL:
-                    try { res = Byte.parseByte(t.getNewValue()); }
-                    catch (Exception e) { res = Byte.parseByte(t.getOldValue()); }
-                    break;
-                case CHAR:
-                    if (t.getNewValue().length() == 1) res = (byte) t.getNewValue().charAt(0);
-                    else if (t.getNewValue().equals("\\n")) res = (byte)'\n';
-                    else if (t.getNewValue().equals("\\r")) res = (byte)'\r';
-                    else if (t.getNewValue().equals("\\t")) res = (byte)'\t';
-                    else if (t.getNewValue().equals("")) res = (byte)' ';
-                    else res = (byte) t.getOldValue().charAt(0);
-            }
-            t.getRowValue()[i] = res;
-            t.getTableColumn().setVisible(false);
-            t.getTableColumn().setVisible(true);
-
-            if (((HexTable) getTableView()).onEdit != null) {
-                TablePosition<Byte[], String> pos = t.getTablePosition();
-                ((HexTable) getTableView()).onEdit.onEdit(pos.getRow(), (HexColumn) pos.getTableColumn());
-            }
-        });
         setCellValueFactory(param -> {
             if (!(getTableView() instanceof HexTable)) {
                 System.err.println("Warning: HexColumn used outside of HexTable!");
@@ -105,6 +68,43 @@ class HexColumn extends TableColumn<Byte[], String>
 
             setAlignment(alignment);
             setPadding(new Insets(0));
+            setOnEditCommit(t -> {
+                if (!(getTableView() instanceof HexTable)) {
+                    System.err.println("Warning: HexColumn used outside of HexTable!");
+                    return;
+                }
+                Byte res = null;
+                switch (((HexTable) getTableView()).getDisplayMode()) {
+                    case HEX:
+                        try {
+                            short r = Short.parseShort(t.getNewValue(), 16);
+                            if (r > 0xFF) throw new Exception();
+                            res = (byte) r;
+                        }
+                        catch (Exception e) { res = Byte.parseByte(t.getOldValue(), 16); }
+                        break;
+                    case DECIMAL:
+                    case UDECIMAL:
+                        try { res = Byte.parseByte(t.getNewValue()); }
+                        catch (Exception e) { res = Byte.parseByte(t.getOldValue()); }
+                        break;
+                    case CHAR:
+                        if (t.getNewValue().length() == 1) res = (byte) t.getNewValue().charAt(0);
+                        else if (t.getNewValue().equals("\\n")) res = (byte)'\n';
+                        else if (t.getNewValue().equals("\\r")) res = (byte)'\r';
+                        else if (t.getNewValue().equals("\\t")) res = (byte)'\t';
+                        else if (t.getNewValue().equals("")) res = (byte)' ';
+                        else res = (byte) t.getOldValue().charAt(0);
+                }
+                t.getRowValue()[i] = res;
+                t.getTableColumn().setVisible(false);
+                t.getTableColumn().setVisible(true);
+
+                if (((HexTable) getTableView()).onEdit != null) {
+                    TablePosition<Byte[], String> pos = t.getTablePosition();
+                    ((HexTable) getTableView()).onEdit.onEdit(pos.getRow(), (HexColumn) pos.getTableColumn());
+                }
+            });
         }
 
         @Override
@@ -115,8 +115,8 @@ class HexColumn extends TableColumn<Byte[], String>
                 setText(null);
                 return;
             }
-
             pseudoClassStateChanged(PseudoClass.getPseudoClass("null-value"), item == null);
+            pseudoClassStateChanged(PseudoClass.getPseudoClass("edited"), ((HexTable) getTableView()).hasChanged(getIndex(), HexColumn.this));
             setText(item == null ? "." : item);
         }
     }

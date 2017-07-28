@@ -1,26 +1,18 @@
-import gui.table.HexTable;
-import gui.table.HexTableWrapper;
+import gui.HexTab;
+import gui.HexTable;
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
-import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
-import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import javax.xml.soap.Text;
 import java.io.File;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 /**
  * ಠ^ಠ.
@@ -47,13 +39,12 @@ public class KLMNx extends Application
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("KLMN Hex Editor");
-        setPalette();
+//        setPalette();
 
         BorderPane root = new BorderPane();
 
         final HexFile[] f = new HexFile[1];
-        f[0] = new HexFile("readme.md");
-        HexTableWrapper table = new HexTableWrapper();
+        TabPane center = new TabPane();
 
         MenuBar menu = new MenuBar();
         menu.useSystemMenuBarProperty().set(true);
@@ -71,9 +62,9 @@ public class KLMNx extends Application
 
             if (selected == null) return;
 
-            f[0] = new HexFile(selected.getAbsolutePath());
-            table.setData(f[0]);
-            table.clearSelection();
+            HexTab t = new HexTab(new HexFile(selected.getAbsolutePath()));
+            t.setText(selected.getName());
+            center.getTabs().add(t);
 
             primaryStage.setTitle("KLMN Hex Editor (" + selected.getAbsolutePath() + ")");
         });
@@ -87,7 +78,9 @@ public class KLMNx extends Application
             chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("All Types", "*.*"));
             File selected = chooser.showSaveDialog(primaryStage);
 
-            if (selected != null) f[0].saveAs(selected.getAbsolutePath());
+            if (selected != null) {
+                ((HexFile) ((HexTab) center.getSelectionModel().getSelectedItem()).getData()).saveAs(selected.getAbsolutePath());
+            }
         });
         MenuItem save = new MenuItem("_Save");
         save.setAccelerator(KeyCombination.keyCombination("ctrl+s"));
@@ -98,7 +91,9 @@ public class KLMNx extends Application
         exit.setAccelerator(KeyCombination.keyCombination("alt+f4"));
         file.getItems().add(exit);
         exit.setOnAction(e -> System.exit(0));
-        save.setOnAction(e -> f[0].save());
+        save.setOnAction(e ->
+                ((HexFile) ((HexTab) center.getSelectionModel().getSelectedItem()).getData()).save()
+        );
         Menu view = new Menu("_View");
         menu.getMenus().add(view);
         Menu selectMode = new Menu("Select View _Mode");
@@ -114,30 +109,30 @@ public class KLMNx extends Application
                 for (int j = 0; j < modes.length; j++)
                     modes[j].setSelected(j == n);
                 for (HexTable.DisplayMode j : HexTable.DisplayMode.values())
-                    if (j.ordinal() == n) table.setDisplayMode(j);
+                    if (j.ordinal() == n) ((HexTab) center.getSelectionModel().getSelectedItem()).setDisplayMode(j);
             });
         }
         Menu indexRadix = new Menu("Select _Index Base");
         view.getItems().add(indexRadix);
         CheckMenuItem base16 = new CheckMenuItem("Hexadecimal");
-        CheckMenuItem base10 = new CheckMenuItem("Decimal");
+        CheckMenuItem base10 = new CheckMenuItem("Decimal"); // todo: select/ deselect these based on tab
         base16.setSelected(true);
         base10.setOnAction(e -> {
             base10.setSelected(true);
             base16.setSelected(false);
-            table.setRadix(10);
+            ((HexTab) center.getSelectionModel().getSelectedItem()).setRadix(10);
         });
         base16.setOnAction(e -> {
             base16.setSelected(true);
             base10.setSelected(false);
-            table.setRadix(16);
+            ((HexTab) center.getSelectionModel().getSelectedItem()).setRadix(16);
         }); indexRadix.getItems().addAll(base16, base10);
 
         view.getItems().add(selectMode);
 
         root.setTop(menu);
-        root.setCenter(table);
-        Scene scene = new Scene(root, table.getPrefWidth(), 700);
+        root.setCenter(center);
+        Scene scene = new Scene(root, 800, 700);
         scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.ESCAPE) System.exit(0);
         });

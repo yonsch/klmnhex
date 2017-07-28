@@ -88,6 +88,11 @@
     -fx-accent: #4477BB;
 }
 
+.table-view .table-cell:edited {
+    -fx-text-fill: derive(-palette-accent-color, -30%);
+    -fx-font-weight: bold;
+}
+
 .table-view .table-cell:null-value {
     -fx-text-fill: derive(-palette-light-color, -20%);
     -fx-accent: #4477BB;
@@ -157,4 +162,60 @@
     -fx-font-family: Monospaced;
     -fx-background-color: derive(-palette-light-color, 25%);
     -fx-cell-size: 29px;
+}
+
+.hex-text .cell:edited {
+    -fx-font-weight: bold;
+}
+
+.tab-pane {
+    -fx-tab-min-height: 20;
+    -fx-tab-min-width: 40;
+    -fx-background-color: -palette-light-color;
+}
+
+.tab-pane .tab {
+    -fx-background-color: derive(-palette-accent-color, -20%);
+    -fx-border-color: derive(-palette-accent-color, -20%);
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-width: 0 0 1 0;
+}
+
+.tab-pane .tab:hover {
+    -fx-background-color: derive(-palette-accent-color, -15%);
+}
+
+.tab-pane .tab:selected, .tab-pane .tab:selected:hover {
+    -fx-background-color: -palette-accent-color;
+}
+
+.tab-pane .tab-close-button {
+    -fx-background-color: derive(-palette-accent-color, -30%);
+}
+.tab-pane .tab-close-button:hover {
+    -fx-background-color: derive(-palette-accent-color, -40%);
+}
+.tab-pane .tab-close-button:pressed {
+    -fx-background-color: derive(-palette-accent-color, -15%);
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: derive(-palette-light-color, -40%);
+}
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: -palette-light-color;
+}
+
+.tab-pane .tab-header-area {
+    -fx-background-insets: 0;
+    -fx-padding: 0 0 0 0;
+}
+
+.tab-pane .tab-header-background {
+    -fx-background-color: -palette-dark-color;
+}
+
+.tab-pane .focus-indicator {
+    -fx-opacity: 0;
 }

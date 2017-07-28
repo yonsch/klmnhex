@@ -1,4 +1,4 @@
-package gui.table;
+package gui;
 
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;

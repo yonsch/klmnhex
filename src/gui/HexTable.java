@@ -1,4 +1,4 @@
-package gui.table;
+package gui;
 
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -16,12 +16,24 @@ public class HexTable extends TableView<Byte[]>
     private int hexIndex = 0;
     EditListener onEdit = null;
 
+    private Byte[][] originalData;
+
     // selection takes about 5 times more nano seconds, but still not very bad
     public HexTable() {
         super();
         setPrefWidth(20);
         setEditable(true);
         setSelectionModel(new HexSelectionModel(this));
+
+        itemsProperty().addListener((o) -> {
+            originalData = new Byte[getItems().size()][];
+            for (int i = 0; i < getItems().size(); i++) originalData[i] = getItems().get(i).clone();
+        });
+    }
+
+    public boolean hasChanged(int row, HexColumn column) {
+        return column != null && getItems().get(row)[column.getIndex()] != null &&
+            !getItems().get(row)[column.getIndex()].equals(originalData[row][column.getIndex()]);
     }
 
     public void addHexColumns(int count) {

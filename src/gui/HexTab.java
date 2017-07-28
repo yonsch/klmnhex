@@ -1,4 +1,4 @@
-package gui.table;
+package gui;
 
 import javafx.application.Platform;
 import javafx.scene.control.*;
@@ -12,13 +12,17 @@ import javafx.scene.layout.VBox;
  *
  * This class is in charge of displaying a HexTable with its surrounding components.
  */
-public class HexTableWrapper extends VBox
+public class HexTab extends Tab
 {
     private HexTable table, text;
     private ListView header;
+    private HexData data;
 
-    public HexTableWrapper() {
+    public HexTab() { this(null); }
+    public HexTab(HexData data) {
         super();
+
+        VBox content = new VBox();
         table = new HexTable();
         table.addIndexColumn();
         table.addHexColumns(4);
@@ -37,14 +41,15 @@ public class HexTableWrapper extends VBox
         text.setPrefWidth(15 * 16);
         text.getStyleClass().add("hex-text");
 
-        Platform.runLater(() -> {
+        Runnable syncScrolls = () -> {
             ScrollBar scroll = (ScrollBar) table.lookup(".scroll-bar");
             scroll.valueProperty().bindBidirectional(((ScrollBar) text.lookup(".scroll-bar")).valueProperty());
             scroll.visibleAmountProperty().addListener(obs -> {
                 if (scroll.getVisibleAmount() < 0.05) scroll.setVisibleAmount(0.05);
             });
             text.lookup(".scroll-bar").setDisable(true);
-        });
+        };
+        Platform.runLater(() -> Platform.runLater(syncScrolls)); // stupid, but if it ain't broke, don't fix it
 
         ((HexSelectionModel) text.getSelectionModel()).startProperty().bindBidirectional(
                 ((HexSelectionModel) table.getSelectionModel()).startProperty());
@@ -60,14 +65,17 @@ public class HexTableWrapper extends VBox
             table.getColumns().get(column.getIndex()).setVisible(true);
         });
 
-        getChildren().add(header);
-        getChildren().add(new HBox(table, text));
+        content.getChildren().add(header);
+        content.getChildren().add(new HBox(table, text));
 
         text.setPlaceholder(new Label(""));
         table.setPlaceholder(new Label("No Open File"));
 
-        setVgrow(getChildren().get(1), Priority.ALWAYS);
-        setPrefWidth(table.getPrefWidth() + text.getPrefWidth());
+        VBox.setVgrow(content.getChildren().get(1), Priority.ALWAYS);
+        content.setPrefWidth(table.getPrefWidth() + text.getPrefWidth());
+
+        setContent(content);
+        if (data != null) setData(data);
     }
 
     public ListView getHeader() { return header; }
@@ -81,7 +89,10 @@ public class HexTableWrapper extends VBox
     public void setData(HexData data) {
         table.setItems(data);
         text.setItems(data);
+
+        this.data = data;
     }
+    public HexData getData() { return data; }
     public void clearSelection() { table.getSelectionModel().clearSelection(); }
     public void setDisplayMode(HexTable.DisplayMode mode) { table.setDisplayMode(mode); }
 }

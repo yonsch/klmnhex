@@ -1,4 +1,4 @@
-import gui.table.HexData;
+import gui.HexData;
 
 import java.nio.file.Paths;
 
