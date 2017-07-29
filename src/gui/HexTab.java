@@ -45,7 +45,9 @@ public class HexTab extends Tab
             ScrollBar scroll = (ScrollBar) table.lookup(".scroll-bar");
             scroll.valueProperty().bindBidirectional(((ScrollBar) text.lookup(".scroll-bar")).valueProperty());
             scroll.visibleAmountProperty().addListener(obs -> {
-                if (scroll.getVisibleAmount() < 0.05) scroll.setVisibleAmount(0.05);
+                if (table.getHeight() == 0) return;
+                if (scroll.getVisibleAmount() * table.getHeight() < 20)
+                    scroll.setVisibleAmount(20.0 / table.getHeight()); // min height of 20 pixels
             });
             text.lookup(".scroll-bar").setDisable(true);
         };
@@ -74,7 +76,9 @@ public class HexTab extends Tab
         VBox.setVgrow(content.getChildren().get(1), Priority.ALWAYS);
         content.setPrefWidth(table.getPrefWidth() + text.getPrefWidth());
 
-        setContent(content);
+        ScrollPane scrollPane = new ScrollPane(content); // todo: fix horizontal scroll
+        scrollPane.setFitToHeight(true);
+        setContent(scrollPane);
         if (data != null) setData(data);
     }
 

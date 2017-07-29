@@ -1,10 +1,18 @@
 import gui.HexTab;
 import gui.HexTable;
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -43,8 +51,16 @@ public class KLMNx extends Application
 
         BorderPane root = new BorderPane();
 
-        final HexFile[] f = new HexFile[1];
         TabPane center = new TabPane();
+        // todo: the ability to create 'new' tabs
+        Label placeHolder = new Label("KLMNx");
+        placeHolder.setFont(Font.font(null, FontWeight.BOLD, 200));
+        placeHolder.setPrefSize(802, 700);
+        placeHolder.setAlignment(Pos.CENTER);
+        placeHolder.getStyleClass().add("place-holder");
+        BooleanBinding bb = Bindings.isEmpty(center.getTabs());
+        placeHolder.visibleProperty().bind(bb);
+        placeHolder.managedProperty().bind(bb);
 
         MenuBar menu = new MenuBar();
         menu.useSystemMenuBarProperty().set(true);
@@ -65,6 +81,7 @@ public class KLMNx extends Application
             HexTab t = new HexTab(new HexFile(selected.getAbsolutePath()));
             t.setText(selected.getName());
             center.getTabs().add(t);
+            center.getSelectionModel().select(t);
 
             primaryStage.setTitle("KLMN Hex Editor (" + selected.getAbsolutePath() + ")");
         });
@@ -112,6 +129,15 @@ public class KLMNx extends Application
                     if (j.ordinal() == n) ((HexTab) center.getSelectionModel().getSelectedItem()).setDisplayMode(j);
             });
         }
+        center.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
+            if (newV == null) return;
+            HexTable.DisplayMode m = ((HexTab) center.getSelectionModel().getSelectedItem()).getTable().getDisplayMode();
+            switch (m) {
+                case HEX: modes[0].getOnAction().handle(null); break;
+                case DECIMAL: modes[1].getOnAction().handle(null); break;
+                case UDECIMAL: modes[2].getOnAction().handle(null);
+            }
+        });
         Menu indexRadix = new Menu("Select _Index Base");
         view.getItems().add(indexRadix);
         CheckMenuItem base16 = new CheckMenuItem("Hexadecimal");
@@ -120,19 +146,20 @@ public class KLMNx extends Application
         base10.setOnAction(e -> {
             base10.setSelected(true);
             base16.setSelected(false);
-            ((HexTab) center.getSelectionModel().getSelectedItem()).setRadix(10);
+            for (Tab t : center.getTabs()) ((HexTab) t).setRadix(10);
         });
         base16.setOnAction(e -> {
             base16.setSelected(true);
             base10.setSelected(false);
-            ((HexTab) center.getSelectionModel().getSelectedItem()).setRadix(16);
+            for (Tab t : center.getTabs()) ((HexTab) t).setRadix(16);
         }); indexRadix.getItems().addAll(base16, base10);
 
         view.getItems().add(selectMode);
 
         root.setTop(menu);
-        root.setCenter(center);
-        Scene scene = new Scene(root, 800, 700);
+        root.setCenter(new VBox(placeHolder, center));
+        VBox.setVgrow(center, Priority.ALWAYS);
+        Scene scene = new Scene(root, 802, 700);
         scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.ESCAPE) System.exit(0);
         });

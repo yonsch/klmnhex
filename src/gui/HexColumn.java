@@ -115,7 +115,7 @@ class HexColumn extends TableColumn<Byte[], String>
                 setText(null);
                 return;
             }
-            pseudoClassStateChanged(PseudoClass.getPseudoClass("null-value"), item == null);
+            pseudoClassStateChanged(PseudoClass.getPseudoClass("null-value"), item == null || item.equals("- -"));
             pseudoClassStateChanged(PseudoClass.getPseudoClass("edited"), ((HexTable) getTableView()).hasChanged(getIndex(), HexColumn.this));
             setText(item == null ? "." : item);
         }

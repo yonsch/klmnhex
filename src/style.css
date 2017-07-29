@@ -28,6 +28,36 @@
     -fx-padding: 0;
 }
 
+.scroll-pane .scroll-bar .track { -fx-background-color: #EEEEEE; }
+.scroll-pane .increment-button, .scroll-pane .decrement-button {
+    -fx-background-insets: 0;
+    -fx-background-color: #EEEEEE;
+    -fx-padding: 5;
+}
+.scroll-pane .increment-arrow {
+    -fx-shape: "M 0 0 L 4 8 L 8 0 Z";
+    -fx-background-color: #333333;
+    -fx-rotate: -90;
+    -fx-padding: 0.22em;
+}
+.scroll-pane .decrement-arrow {
+    -fx-shape: "M 0 0 L 4 8 L 8 0 Z";
+    -fx-background-color: #333333;
+    -fx-rotate: 90;
+    -fx-padding: 0.22em;
+}
+.scroll-pane .increment-button:hover, .scroll-pane .decrement-button:hover { -fx-background-color: #E5E5E5; }
+.scroll-pane .increment-button:pressed, .scroll-pane .decrement-button:pressed { -fx-background-color: #666666; }
+.scroll-pane .increment-button:pressed .increment-arrow,
+.scroll-pane .decrement-button:pressed .decrement-arrow { -fx-background-color: #EEEEEE; }
+.scroll-pane .scroll-bar .thumb {
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-background-color: #CFCFCF;
+}
+.scroll-pane .scroll-bar .thumb:hover { -fx-background-color: #AAAAAA; }
+.scroll-pane .scroll-bar .thumb:pressed { -fx-background-color: #888888; }
+
 .table-view {
     -fx-padding: 0;
     -fx-border-width: 0;
@@ -41,17 +71,14 @@
 }
 
 .hex-text .scroll-bar,
-.scroll-bar:horizontal {
+.table-view .scroll-bar:horizontal, .list-view .scroll-bar:horizontal {
     -fx-opacity: 0;
     -fx-background-color: transparent;
     -fx-padding: -1em;
 }
 
-.table-view .increment-button, .table-view .decrement-button {
-    -fx-opacity: 0;
-}
-
-.table-view .scroll-bar:vertical .thumb {
+.table-view .increment-button, .table-view .decrement-button { -fx-opacity: 0; }
+.table-view .scroll-bar .thumb {
     -fx-background-color: -palette-midtone2-color;
     -fx-background-radius: 0;
     -fx-border-color: -palette-dark-color;
@@ -59,23 +86,15 @@
     -fx-background-insets: 0;
     -fx-padding: -1em;
 }
-
-.table-view .scroll-bar .thumb:hover {
-    -fx-background-color: derive(-palette-midtone2-color, -10%);
-}
-
-.table-view .scroll-bar .thumb:pressed {
-    -fx-background-color: derive(-palette-midtone2-color, -20%);
-}
-
-.table-view .scroll-bar:vertical .track ,
-.table-view .scroll-bar:vertical .track-background {
+.table-view .scroll-bar .thumb:hover { -fx-background-color: derive(-palette-midtone2-color, -10%); }
+.table-view .scroll-bar .thumb:pressed { -fx-background-color: derive(-palette-midtone2-color, -20%); }
+.table-view .scroll-bar .track, .table-view .scroll-bar .track-background {
     -fx-opacity: 0;
+    -fx-background-color: transparent;
 }
-
-.table-view .scroll-bar:vertical {
-  -fx-background-color: transparent;
-  -fx-padding: -1em;
+.table-view .scroll-bar {
+    -fx-background-color: transparent;
+    -fx-padding: -1em;
 }
 
 .separator .line {
@@ -171,7 +190,7 @@
 .tab-pane {
     -fx-tab-min-height: 20;
     -fx-tab-min-width: 40;
-    -fx-background-color: -palette-light-color;
+    -fx-background-color: -palette-dark-color;
 }
 
 .tab-pane .tab {
@@ -182,40 +201,26 @@
     -fx-border-width: 0 0 1 0;
 }
 
-.tab-pane .tab:hover {
-    -fx-background-color: derive(-palette-accent-color, -15%);
-}
+.tab-pane .tab:hover { -fx-background-color: derive(-palette-accent-color, -15%); }
 
-.tab-pane .tab:selected, .tab-pane .tab:selected:hover {
-    -fx-background-color: -palette-accent-color;
-}
+.tab-pane .tab:selected, .tab-pane .tab:selected:hover { -fx-background-color: -palette-accent-color; }
 
-.tab-pane .tab-close-button {
-    -fx-background-color: derive(-palette-accent-color, -30%);
-}
-.tab-pane .tab-close-button:hover {
-    -fx-background-color: derive(-palette-accent-color, -40%);
-}
-.tab-pane .tab-close-button:pressed {
-    -fx-background-color: derive(-palette-accent-color, -15%);
-}
+.tab-pane .tab-close-button { -fx-background-color: derive(-palette-accent-color, -30%); }
+.tab-pane .tab-close-button:hover { -fx-background-color: derive(-palette-accent-color, -40%); }
+.tab-pane .tab-close-button:pressed { -fx-background-color: derive(-palette-accent-color, -15%); }
 
-.tab-pane .tab .tab-label {
-    -fx-text-fill: derive(-palette-light-color, -40%);
-}
-.tab-pane .tab:selected .tab-label {
-    -fx-text-fill: -palette-light-color;
-}
+.tab-pane .tab .tab-label { -fx-text-fill: derive(-palette-light-color, -40%); }
+.tab-pane .tab:selected .tab-label { -fx-text-fill: -palette-light-color; }
 
 .tab-pane .tab-header-area {
     -fx-background-insets: 0;
     -fx-padding: 0 0 0 0;
 }
+.tab-pane .tab-header-background { -fx-background-color: -palette-dark-color; }
 
-.tab-pane .tab-header-background {
+.tab-pane .focus-indicator { -fx-opacity: 0; }
+
+.place-holder {
     -fx-background-color: -palette-dark-color;
-}
-
-.tab-pane .focus-indicator {
-    -fx-opacity: 0;
+    -fx-text-fill: -palette-light-color;
 }
