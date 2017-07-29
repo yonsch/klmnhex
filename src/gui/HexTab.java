@@ -5,6 +5,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import java.util.Stack;
 
 /**
  * ಠ^ಠ.
@@ -17,6 +18,14 @@ public class HexTab extends Tab
     private HexTable table, text;
     private ListView header;
     private HexData data;
+    private String fullTitle = "";
+
+    private Stack<HistoryEvent> history = new Stack<>(); // todo: add redo
+
+    public interface HistoryEvent {
+        void undo();
+        void redo();
+    }
 
     public HexTab() { this(null); }
     public HexTab(HexData data) {
@@ -58,13 +67,30 @@ public class HexTab extends Tab
         ((HexSelectionModel) text.getSelectionModel()).endProperty().bindBidirectional(
                 ((HexSelectionModel) table.getSelectionModel()).endProperty());
 
-        table.setOnEdit((row, column) -> {
-            text.getColumns().get(column.getIndex()).setVisible(false);
-            text.getColumns().get(column.getIndex()).setVisible(true);
+        table.setOnEdit((obs, oldV, newV) -> {
+            int i = ((HexColumn) obs.getTableColumn()).getIndex();
+            text.getColumns().get(i).setVisible(false);
+            text.getColumns().get(i).setVisible(true);
+
+            history.push(new HistoryEvent() {
+                @Override public void undo() {
+                    table.getItems().get(obs.getRow())[i] = oldV;
+                    text.getColumns().get(i).setVisible(false);
+                    text.getColumns().get(i).setVisible(true);
+                }
+                @Override public void redo() {}//{ obs.setValue(newV); }
+            });
         });
-        text.setOnEdit((row, column) -> {
-            table.getColumns().get(column.getIndex()).setVisible(false);
-            table.getColumns().get(column.getIndex()).setVisible(true);
+        text.setOnEdit((obs, oldV, newV) -> {
+            int i = ((HexColumn) obs.getTableColumn()).getIndex();
+            table.getColumns().get(i).setVisible(false); // this won't work, since table has spacing
+            table.getColumns().get(i).setVisible(true);  // columns and the indices are off.
+                                                         // I'll have to implement something more serious.
+
+            history.push(new HistoryEvent() {
+                @Override public void undo(){}// { obs.setValue(oldV); }
+                @Override public void redo(){}// { obs.setValue(newV); }
+            });
         });
 
         content.getChildren().add(header);
@@ -99,4 +125,12 @@ public class HexTab extends Tab
     public HexData getData() { return data; }
     public void clearSelection() { table.getSelectionModel().clearSelection(); }
     public void setDisplayMode(HexTable.DisplayMode mode) { table.setDisplayMode(mode); }
+
+    public String getFullTitle() { return fullTitle; }
+    public void setFullTitle(String fullTitle) { this.fullTitle = fullTitle; }
+
+    public void undo() {
+        if (!history.empty())
+            history.pop().undo();
+    }
 }

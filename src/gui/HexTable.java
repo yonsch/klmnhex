@@ -1,5 +1,6 @@
 package gui;
 
+import javafx.beans.value.ChangeListener;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -14,7 +15,7 @@ public class HexTable extends TableView<Byte[]>
 
     private DisplayMode displayMode = DisplayMode.HEX;
     private int hexIndex = 0;
-    EditListener onEdit = null;
+    protected HexEditListener onEdit = null;
 
     private Byte[][] originalData;
 
@@ -61,8 +62,8 @@ public class HexTable extends TableView<Byte[]>
     }
     public DisplayMode getDisplayMode() { return displayMode; }
 
-    public interface EditListener { void onEdit(int row, HexColumn column); }
-    public void setOnEdit(EditListener onEdit) { this.onEdit = onEdit; }
+    public interface HexEditListener { void changed(TablePosition c, Byte oldV, Byte newV); }
+    public void setOnEdit(HexEditListener onEdit) { this.onEdit = onEdit; }
 
     public ListView<String> generateHeader() {
         ListView<String> res = new ListView<>();

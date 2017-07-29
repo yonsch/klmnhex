@@ -10,6 +10,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 
+import javax.swing.event.ChangeEvent;
 import java.util.*;
 
 /**
@@ -22,7 +23,6 @@ import java.util.*;
  */
 class HexSelectionModel extends TableView.TableViewSelectionModel<Byte[]>
 {
-//    private int start = -1, end = -1;
     private ModifiableIntegerProperty start = new ModifiableIntegerProperty(-1),
         end = new ModifiableIntegerProperty(-1);
     private int width, height;
@@ -152,8 +152,6 @@ class HexSelectionModel extends TableView.TableViewSelectionModel<Byte[]>
         if (row < 0 || column == null || ignored.contains(column)) return;
         end.set((int) getIndex(row, column));
         fixStartRow();
-
-//        original.select(row, column);
     }
 
     @Override

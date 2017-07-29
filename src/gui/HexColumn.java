@@ -5,7 +5,6 @@ import javafx.css.PseudoClass;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TablePosition;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.DefaultStringConverter;
 
@@ -57,7 +56,7 @@ class HexColumn extends TableColumn<Byte[], String>
     public int getIndex() { return i; }
 
     public Pos alignment = Pos.CENTER;
-    private class HexCell extends TextFieldTableCell<Byte[], String>
+    public class HexCell extends TextFieldTableCell<Byte[], String>
     {
         HexCell() {
             super(new DefaultStringConverter());
@@ -96,14 +95,13 @@ class HexColumn extends TableColumn<Byte[], String>
                         else if (t.getNewValue().equals("")) res = (byte)' ';
                         else res = (byte) t.getOldValue().charAt(0);
                 }
-                t.getRowValue()[i] = res;
-                t.getTableColumn().setVisible(false);
-                t.getTableColumn().setVisible(true);
 
                 if (((HexTable) getTableView()).onEdit != null) {
-                    TablePosition<Byte[], String> pos = t.getTablePosition();
-                    ((HexTable) getTableView()).onEdit.onEdit(pos.getRow(), (HexColumn) pos.getTableColumn());
+                    ((HexTable) getTableView()).onEdit.changed(t.getTablePosition(), t.getRowValue()[i], res);
                 }
+                t.getRowValue()[i] = res;
+                setVisible(false);
+                setVisible(true);
             });
         }
 
@@ -119,5 +117,19 @@ class HexColumn extends TableColumn<Byte[], String>
             pseudoClassStateChanged(PseudoClass.getPseudoClass("edited"), ((HexTable) getTableView()).hasChanged(getIndex(), HexColumn.this));
             setText(item == null ? "." : item);
         }
+
+        public void setValue(Byte value) {
+//            System.out.println(getTableView().getItems().indexOf((Byte[]) getTableRow().getItem()));
+            for (Byte b : (Byte[]) getTableRow().getItem())
+                System.out.println(b);
+            Byte[] row = getTableView().getItems().get(getTableRow().getIndex());
+            System.out.println("poo " + value + ", " + row[0]);
+
+            row[getColumnIndex()] = value;
+            setVisible(false);
+            setVisible(true);
+        }
+
+        public int getColumnIndex() { return HexColumn.this.getIndex(); }
     }
 }

@@ -107,6 +107,12 @@
     -fx-accent: #4477BB;
 }
 
+.table-view .cell:selected {
+   -fx-background-color: #4477BB;
+   -fx-border-color: #4477BB;
+   -fx-border-width: 1;
+}
+
 .table-view .table-cell:edited {
     -fx-text-fill: derive(-palette-accent-color, -30%);
     -fx-font-weight: bold;
@@ -115,12 +121,6 @@
 .table-view .table-cell:null-value {
     -fx-text-fill: derive(-palette-light-color, -20%);
     -fx-accent: #4477BB;
-}
-
-.table-view .cell:selected {
-   -fx-background-color: #4477BB;
-   -fx-border-color: #4477BB;
-   -fx-border-width: 1;
 }
 
 .table-row-cell:even {

@@ -33,9 +33,7 @@ public class KLMNx extends Application
     private void setPalette() throws Exception {
         Path path = Paths.get("src/style.css");
 
-//        int[] palette = {0x32292F, 0xF0F7F4, 0x99E1D9, 0x70ABAF, 0x705D56}; //default
-//        int[] palette = {0x0, 0xFFFFFF, 0xCCCCCC, 0xAAAAAA, 0xDD1133}; // international yummies
-        int[] palette = {0x34363E, 0xE7F9F8, 0xA9B3CE, 0x7284A8, 0x9E788F}; // erik
+        int[] palette = {0x34363E, 0xE7F9F8, 0xA9B3CE, 0x7284A8, 0x9E788F}; // change palette easily using this
         String[] names = {"-palette-dark-color", "-palette-light-color", "-palette-midtone1-color", "palette-midtone2-color", "palette-accent-color"};
 
         String css = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
@@ -45,9 +43,8 @@ public class KLMNx extends Application
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("KLMN Hex Editor");
-//        setPalette();
+    public void start(Stage stage) throws Exception {
+        stage.setTitle("KLMN Hex Editor");
 
         BorderPane root = new BorderPane();
 
@@ -74,16 +71,15 @@ public class KLMNx extends Application
             chooser.setInitialDirectory(new File(System.getProperty("user.home")));
             chooser.setTitle("Choose a Binary File To Open");
             chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("All Types", "*.*"));
-            File selected = chooser.showOpenDialog(primaryStage);
+            File selected = chooser.showOpenDialog(stage);
 
             if (selected == null) return;
 
             HexTab t = new HexTab(new HexFile(selected.getAbsolutePath()));
             t.setText(selected.getName());
+            t.setFullTitle("KLMN Hex Editor (" + selected.getAbsolutePath() + ")");
             center.getTabs().add(t);
             center.getSelectionModel().select(t);
-
-            primaryStage.setTitle("KLMN Hex Editor (" + selected.getAbsolutePath() + ")");
         });
         MenuItem saveAs = new MenuItem("Save _As");
         saveAs.setAccelerator(KeyCombination.keyCombination("ctrl+alt+s"));
@@ -93,7 +89,7 @@ public class KLMNx extends Application
             chooser.setInitialDirectory(new File(System.getProperty("user.home")));
             chooser.setTitle("Choose a Binary File To Save To");
             chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("All Types", "*.*"));
-            File selected = chooser.showSaveDialog(primaryStage);
+            File selected = chooser.showSaveDialog(stage);
 
             if (selected != null) {
                 ((HexFile) ((HexTab) center.getSelectionModel().getSelectedItem()).getData()).saveAs(selected.getAbsolutePath());
@@ -111,6 +107,18 @@ public class KLMNx extends Application
         save.setOnAction(e ->
                 ((HexFile) ((HexTab) center.getSelectionModel().getSelectedItem()).getData()).save()
         );
+        Menu edit = new Menu("_Edit");
+        menu.getMenus().add(edit);
+        MenuItem undo = new MenuItem("Undo");
+        undo.setAccelerator(KeyCombination.keyCombination("ctrl+z"));
+        undo.setOnAction(e -> {
+            HexTab t = (HexTab) center.getSelectionModel().getSelectedItem();
+            if (t != null) t.undo();
+        });
+        edit.getItems().add(undo);
+        MenuItem redo = new MenuItem("Redo");
+        redo.setAccelerator(KeyCombination.keyCombination("ctrl+shift+z"));
+        edit.getItems().add(redo);
         Menu view = new Menu("_View");
         menu.getMenus().add(view);
         Menu selectMode = new Menu("Select View _Mode");
@@ -130,7 +138,11 @@ public class KLMNx extends Application
             });
         }
         center.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
-            if (newV == null) return;
+            if (newV == null) {
+                stage.setTitle("KLMN Hex Editor");
+                return;
+            }
+            stage.setTitle(((HexTab) newV).getFullTitle());
             HexTable.DisplayMode m = ((HexTab) center.getSelectionModel().getSelectedItem()).getTable().getDisplayMode();
             switch (m) {
                 case HEX: modes[0].getOnAction().handle(null); break;
@@ -164,10 +176,10 @@ public class KLMNx extends Application
             if (e.getCode() == KeyCode.ESCAPE) System.exit(0);
         });
         scene.getStylesheets().add("style.css");
-        primaryStage.setScene(scene);
+        stage.setScene(scene);
 
-        primaryStage.setOnCloseRequest(close -> System.exit(0));
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        stage.setOnCloseRequest(close -> System.exit(0));
+        stage.setScene(scene);
+        stage.show();
     }
 }
