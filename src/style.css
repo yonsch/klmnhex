@@ -28,6 +28,10 @@
     -fx-padding: 0;
 }
 
+.scroll-pane .viewport {
+    -fx-background-color: -palette-dark-color;
+}
+
 .scroll-pane .scroll-bar .track { -fx-background-color: #EEEEEE; }
 .scroll-pane .increment-button, .scroll-pane .decrement-button {
     -fx-background-insets: 0;
@@ -221,6 +225,10 @@
 .tab-pane .focus-indicator { -fx-opacity: 0; }
 
 .place-holder {
+    -fx-padding: 2em;
+    -fx-background-color: -palette-dark-color;
+}
+.place-holder .label {
     -fx-background-color: -palette-dark-color;
     -fx-text-fill: -palette-light-color;
 }

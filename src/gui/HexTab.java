@@ -2,9 +2,9 @@ package gui;
 
 import javafx.application.Platform;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+
 import java.util.Stack;
 
 /**
@@ -50,7 +50,7 @@ public class HexTab extends Tab
         text.setPrefWidth(15 * 16);
         text.getStyleClass().add("hex-text");
 
-        Runnable syncScrolls = () -> {
+        Runnable syncScrolls = () -> { // todo: try to execute until scroll is not null
             ScrollBar scroll = (ScrollBar) table.lookup(".scroll-bar");
             scroll.valueProperty().bindBidirectional(((ScrollBar) text.lookup(".scroll-bar")).valueProperty());
             scroll.visibleAmountProperty().addListener(obs -> {
@@ -86,7 +86,6 @@ public class HexTab extends Tab
             table.getColumns().get(i).setVisible(false); // this won't work, since table has spacing
             table.getColumns().get(i).setVisible(true);  // columns and the indices are off.
                                                          // I'll have to implement something more serious.
-
             history.push(new HistoryEvent() {
                 @Override public void undo(){}// { obs.setValue(oldV); }
                 @Override public void redo(){}// { obs.setValue(newV); }

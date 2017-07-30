@@ -1,6 +1,5 @@
 package gui;
 
-import javafx.beans.value.ChangeListener;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -29,6 +28,9 @@ public class HexTable extends TableView<Byte[]>
         itemsProperty().addListener((o) -> {
             originalData = new Byte[getItems().size()][];
             for (int i = 0; i < getItems().size(); i++) originalData[i] = getItems().get(i).clone();
+        });
+        addEventFilter(TableColumn.CellEditEvent.ANY, e -> {
+            System.out.println("wow");
         });
     }
 
