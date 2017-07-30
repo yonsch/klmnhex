@@ -2,10 +2,12 @@ package gui;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.css.PseudoClass;
+import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.MouseEvent;
 import javafx.util.converter.DefaultStringConverter;
 
 /**
@@ -61,7 +63,12 @@ class HexColumn extends TableColumn<Byte[], String>
         HexCell() {
             super(new DefaultStringConverter());
 
-            setOnMousePressed(e -> getTableView().getSelectionModel().clearAndSelect(getIndex(), HexColumn.this));
+            addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+                e.consume();
+                if (e.isShiftDown())
+                    getTableView().getSelectionModel().select(getIndex(), HexColumn.this);
+                else getTableView().getSelectionModel().clearAndSelect(getIndex(), HexColumn.this);
+            });
             setOnDragDetected(e -> startFullDrag());
             setOnMouseDragEntered(e -> getTableView().getSelectionModel().select(getIndex(), HexColumn.this));
 

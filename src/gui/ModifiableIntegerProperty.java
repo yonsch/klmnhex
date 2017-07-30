@@ -24,4 +24,10 @@ class ModifiableIntegerProperty
     public int get() { return i.get(); }
     public ModifiableIntegerProperty set(int i) { this.i.set(i); return this; }
     public IntegerProperty getProperty() { return i; }
+
+    @Override
+    public boolean equals(Object other) {
+        return (other instanceof Integer && other == i) ||
+            (other instanceof ModifiableIntegerProperty && ((ModifiableIntegerProperty) other).i == i);
+    }
 }
