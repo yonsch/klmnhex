@@ -1,20 +1,16 @@
 import gui.HexTab;
 import gui.HexTable;
+import gui.RecentFilesManager;
 import javafx.application.Application;
-import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.event.Event;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -23,8 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Stack;
 
 /**
  * ಠ^ಠ.
@@ -72,9 +66,7 @@ public class KLMNx extends Application
         placeHolder.visibleProperty().bind(noTabs);
         placeHolder.managedProperty().bind(noTabs);
 
-        Stack<String> recentFiles = new Stack<>(); // should be a queue? NOPE, it's redundant anyway, todo
-        try { recentFiles.addAll(Arrays.asList(new String(Files.readAllBytes(Paths.get("_recentfiles")), StandardCharsets.UTF_8).split("\n"))); }
-        catch (Exception ignored) {} // file not exists, will be created later
+        RecentFilesManager recentFiles = new RecentFilesManager();
 
         MenuBar menu = new MenuBar();
         menu.useSystemMenuBarProperty().set(true);
@@ -83,16 +75,12 @@ public class KLMNx extends Application
         MenuItem open = new MenuItem("_Open");
         Menu openRecent = new Menu("Open _Recent");
         openRecent.disableProperty().bind(Bindings.isEmpty(openRecent.getItems()));
-        recentFiles.forEach(f -> {
-            MenuItem recentFile = new MenuItem(f.substring(f.lastIndexOf('\\') + 1));
-            recentFile.setOnAction(e -> {
-                HexTab t = new HexTab(new HexFile(f));
-                t.setText(recentFile.getText());
-                t.setFullTitle("KLMN Hex Editor (" + f + ")");
-                center.getTabs().add(t);
-                center.getSelectionModel().select(t);
-            });
-            openRecent.getItems().add(recentFile);
+        recentFiles.bindMenu(openRecent, f -> {
+            HexTab tab = new HexTab(new HexFile(f));
+            tab.setText(f.substring(f.lastIndexOf('\\') + 1));
+            tab.setFullTitle("KLMN Hex Editor (" + f + ")");
+            center.getTabs().add(tab);
+            center.getSelectionModel().select(tab);
         });
         file.getItems().addAll(open, openRecent);
         open.setAccelerator(KeyCombination.keyCombination("ctrl+o"));
@@ -111,25 +99,7 @@ public class KLMNx extends Application
             center.getTabs().add(t);
             center.getSelectionModel().select(t);
 
-            recentFiles.push(selected.getAbsolutePath());
-            if (recentFiles.size() > 6) recentFiles.remove(0);
-
-            openRecent.getItems().clear();
-            final String[] recentFilesString = { "" };
-            recentFiles.forEach(f -> {
-                recentFilesString[0] = f + '\n' + recentFilesString[0];
-                MenuItem recentFile = new MenuItem(f.substring(f.lastIndexOf('\\') + 1));
-                recentFile.setOnAction(e1 -> { // remaining bugs: duplicates, order doesn't change when opening
-                    HexTab t1 = new HexTab(new HexFile(f));
-                    t1.setText(recentFile.getText());
-                    t1.setFullTitle("KLMN Hex Editor (" + f + ")");
-                    center.getTabs().add(t1);
-                    center.getSelectionModel().select(t1);
-                });
-                openRecent.getItems().add(0, recentFile);
-            });
-            try { Files.write(Paths.get("_recentfiles"), recentFilesString[0].getBytes()); }
-            catch (Exception ex) { ex.printStackTrace(); }
+            recentFiles.addFile(selected.getAbsolutePath());
         });
         MenuItem saveAs = new MenuItem("Save _As");
         saveAs.setAccelerator(KeyCombination.keyCombination("ctrl+alt+s"));

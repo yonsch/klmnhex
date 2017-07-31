@@ -8,7 +8,7 @@ import javafx.collections.ObservableList;
  * Created by Michael on 7/20/2017.
  */
 public abstract class HexData extends ModifiableObservableListBase<Byte[]> implements ObservableList<Byte[]>
-{
+{ // todo: remove data, let subclasses implement everything
     protected Byte[][] data;
 
     public HexData(Byte[][] data) { this.data = data; }
@@ -27,7 +27,7 @@ public abstract class HexData extends ModifiableObservableListBase<Byte[]> imple
         return t;
     }
 
-    // currently unused
+    // todo: implement
     @Override
     protected void doAdd(int index, Byte[] element) {}
     @Override
