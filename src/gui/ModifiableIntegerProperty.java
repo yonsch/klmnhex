@@ -27,7 +27,7 @@ class ModifiableIntegerProperty
 
     @Override
     public boolean equals(Object other) {
-        return (other instanceof Integer && other == i) ||
-            (other instanceof ModifiableIntegerProperty && ((ModifiableIntegerProperty) other).i == i);
+        return (other instanceof ModifiableIntegerProperty && ((ModifiableIntegerProperty) other).i.get() == i.get());
+                // || (other instanceof Integer && (int) other == i.get()); not really that useful
     }
 }

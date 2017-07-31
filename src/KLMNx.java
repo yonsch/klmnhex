@@ -178,7 +178,7 @@ public class KLMNx extends Application
         Menu indexRadix = new Menu("Select _Index Base");
         view.getItems().add(indexRadix);
         CheckMenuItem base16 = new CheckMenuItem("Hexadecimal");
-        CheckMenuItem base10 = new CheckMenuItem("Decimal"); // todo: select/ deselect these based on tab
+        CheckMenuItem base10 = new CheckMenuItem("Decimal");
         base16.setSelected(true);
         base10.setOnAction(e -> {
             base10.setSelected(true);

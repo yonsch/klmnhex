@@ -29,9 +29,7 @@ public class HexTable extends TableView<Byte[]>
             originalData = new Byte[getItems().size()][];
             for (int i = 0; i < getItems().size(); i++) originalData[i] = getItems().get(i).clone();
         });
-        addEventFilter(TableColumn.CellEditEvent.ANY, e -> {
-            System.out.println("wow");
-        });
+        setOnSort(System.out::println);
     }
 
     public boolean hasChanged(int row, HexColumn column) {

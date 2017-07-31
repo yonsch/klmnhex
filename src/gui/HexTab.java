@@ -101,7 +101,7 @@ public class HexTab extends Tab
         VBox.setVgrow(content.getChildren().get(1), Priority.ALWAYS);
         content.setPrefWidth(table.getPrefWidth() + text.getPrefWidth());
 
-        ScrollPane scrollPane = new ScrollPane(content); // todo: fix horizontal scroll
+        ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToHeight(true);
         setContent(scrollPane);
         if (data != null) setData(data);

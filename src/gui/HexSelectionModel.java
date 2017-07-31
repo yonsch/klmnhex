@@ -167,7 +167,7 @@ class HexSelectionModel extends TableView.TableViewSelectionModel<Byte[]>
         if (row < 0) return;
         end.set(row * width);
         if (end.get() > start.get()) end.add(width - 1);
-        if (start != end) fixStartRow();
+        if (!start.equals(end)) fixStartRow();
     }
 
     @Override
