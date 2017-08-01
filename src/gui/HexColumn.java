@@ -110,6 +110,7 @@ class HexColumn extends TableColumn<Byte[], String>
                 t.getRowValue()[i] = res;
                 setVisible(false);
                 setVisible(true);
+                getTableView().requestFocus();
             });
         }
 
