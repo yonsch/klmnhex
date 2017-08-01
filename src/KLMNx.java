@@ -60,10 +60,12 @@ public class KLMNx extends Application
                 "The KLMN hex editor is destined to be the worlds best free hex editor.\n" +
                 "KLMNx is designed to be powerful, light-weight and easy to use.\n(todo: actual useful information)");
         description.setFont(Font.font("System", FontWeight.NORMAL, 23));
+        description.setMinHeight(Region.USE_PREF_SIZE);
         placeHolder.getChildren().addAll(name, description);
         placeHolder.getStyleClass().add("place-holder");
         BooleanBinding noTabs = Bindings.isEmpty(center.getTabs());
         placeHolder.visibleProperty().bind(noTabs);
+//        placeHolder.visibleProperty().addListener((obs, oldV, newV) -> { if (newV) description.setPrefHeight();});
         placeHolder.managedProperty().bind(noTabs);
 
         RecentFilesManager recentFiles = new RecentFilesManager();
