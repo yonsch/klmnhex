@@ -36,6 +36,7 @@ class IndexColumn extends TableColumn<Byte[], String>
                 if (e.getClickCount() <= 1) getTableView().getSelectionModel().clearSelection();
             });
             addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+                getTableView().requestFocus();
                 if (e.getClickCount() > 1) getTableView().getSelectionModel().clearAndSelect(getIndex());
             });
             setOnDragDetected(e -> startFullDrag());

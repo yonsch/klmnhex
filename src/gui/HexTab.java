@@ -104,6 +104,7 @@ public class HexTab extends Tab
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToHeight(true);
         setContent(scrollPane);
+
         if (data != null) setData(data);
     }
 

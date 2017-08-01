@@ -29,6 +29,9 @@ public class RecentFilesManager
         }
     }
 
+    public int size() { return files.size(); }
+
+    public String getFile(int index) { return files.get(index); }
     public void addFile(String path) {
         if (files.contains(path)) files.remove(path);
 

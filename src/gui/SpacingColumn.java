@@ -18,6 +18,7 @@ class SpacingColumn extends TableColumn<Byte[], String>
 
             c.addEventFilter(MouseEvent.MOUSE_PRESSED, e1 -> {
                 e1.consume();
+                getTableView().requestFocus();
                 if (e1.isShiftDown()) getTableView().getSelectionModel().select(c.getIndex(), this);
                 else getTableView().getSelectionModel().clearAndSelect(c.getIndex(), this);
             });

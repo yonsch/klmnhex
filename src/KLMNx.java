@@ -19,6 +19,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * ಠ^ಠ.
@@ -198,11 +200,33 @@ public class KLMNx extends Application
         root.setTop(menu);
         root.setCenter(new VBox(placeHolder, center));
         VBox.setVgrow(center, Priority.ALWAYS);
-        Scene scene = new Scene(root, 802, 700);
-        scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {   // eventually will be removed
+        Scene scene = new Scene(root, 802, 710);
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.ESCAPE) System.exit(0);
             if (e.isControlDown() && !e.isAltDown()) {
                 switch (e.getCode()) {
+                    case T:
+                        if (e.isShiftDown()) {
+                            Set<String> currentFiles = new HashSet<>();
+                            for (Tab t : center.getTabs()) {
+                                String title = ((HexTab)t).getFullTitle();
+                                currentFiles.add(title.substring(title.indexOf('(') + 1, title.lastIndexOf(')')));
+                            }
+                            int index = -1;
+                            for (int i = recentFiles.size() - 1; i >= 0; i--)
+                                if (!currentFiles.contains(recentFiles.getFile(i))) {
+                                    index = i;
+                                    break;
+                                }
+                            if (index == -1) break;
+                            String f = recentFiles.getFile(index);
+                            HexTab tab = new HexTab(new HexFile(f));
+                            tab.setText(f.substring(f.lastIndexOf('\\') + 1));
+                            tab.setFullTitle("KLMN Hex Editor (" + f + ")");
+                            center.getTabs().add(tab);
+                            center.getSelectionModel().select(tab);
+                        }
+                        break;
                     case TAB:
                         if (center.getTabs().size() > 1) {
                             if (!e.isShiftDown()) center.getSelectionModel().select(

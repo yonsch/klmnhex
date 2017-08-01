@@ -65,6 +65,7 @@ class HexColumn extends TableColumn<Byte[], String>
 
             addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
                 e.consume();
+                getTableView().requestFocus();
                 if (e.isShiftDown())
                     getTableView().getSelectionModel().select(getIndex(), HexColumn.this);
                 else getTableView().getSelectionModel().clearAndSelect(getIndex(), HexColumn.this);
